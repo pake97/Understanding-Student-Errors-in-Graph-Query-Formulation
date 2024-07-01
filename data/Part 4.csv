@@ -1,0 +1,226 @@
+TEST ID;Q1. Explain your understanding of the SCHEMA (in general). What is it and what is it used for.;Q2. What is the use of COLLECT keyword in Cypher?;Q3. In which other programming language/tool is there something similar to COLLECT? Does it remind you of something you've used before?;Q4. What is the use of WITH keyword in Cypher?;Q5. In which other programming language/tool is there something similar to WITH? Does it remind you of something you've used before?;"Q6. Given this question :  Write a Cypher query that returns each distinct node label together with its corresponding set of properties. Which of the following query is correct?
+
+1 . MATCH (n) RETURN DISTINCT labels(n) AS labels, keys(n) AS properties
+
+2 . MATCH (n) RETURN DISTINCT labels(n) AS labels, collect(distinct keys(n)) AS properties
+
+3. MATCH (n) RETURN DISTINCT labels(n) AS labels, collect(keys(n)) AS properties";"Q7. Given this question :  Write a Cypher query that returns each distinct node label together with its corresponding set of properties. 
+Given the following queries, explain the difference between them.
+
+1 . MATCH (n) RETURN DISTINCT labels(n) AS labels, keys(n) AS properties
+
+2 . MATCH (n) RETURN DISTINCT labels(n) AS labels, collect(distinct keys(n)) AS properties
+
+3. MATCH (n) RETURN DISTINCT labels(n) AS labels, collect(keys(n)) AS properties";"Q8. Given this question :  Write a Cypher query that returns each distinct node label together with its corresponding set of properties. Which of the following query is correct?
+
+1. MATCH (n) RETURN DISTINCT labels(n), collect(keys(n)) AS properties
+
+2. MATCH (n) WITH DISTINCT labels(n) AS labels, n RETURN labels, collect(keys(n)) AS properties";"Q9. Given this question :  Write a Cypher query that returns each distinct node label together with its corresponding set of properties. 
+Given the following queries, explain the difference between them.
+
+1. MATCH (n) RETURN DISTINCT labels(n), collect(keys(n)) AS properties
+
+2. MATCH (n) WITH DISTINCT labels(n) AS labels, n RETURN labels, collect(keys(n)) AS properties";"Q10. Given this question : Write a Cypher query to return each pangenome, together with its associated genes.
+ Which of the following query is correct?
+
+1 . MATCH (p:Pangenome)--(f:Family)--(g:Gene) RETURN distinct p.name, g.name;
+
+2 . MATCH (g:Gene)-[:IS_IN_FAMILY]->(:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) RETURN p.name as pangenomeName, COLLECT(g.name) AS genes
+
+3. MATCH (gene:Gene)-[:IS_IN_FAMILY]->(family:Family)-[:IS_IN_PANGENOME]->(pangenome:Pangenome) RETURN pangenome, gene";"Q11. Given this question : Write a Cypher query to return each pangenome, together with its associated genes.
+ Given the following queries, explain the difference between them.
+
+1 . MATCH (p:Pangenome)--(f:Family)--(g:Gene) RETURN distinct p.name, g.name;
+
+2 . MATCH (g:Gene)-[:IS_IN_FAMILY]->(:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) RETURN p.name as pangenomeName, COLLECT(g.name) AS genes
+
+3. MATCH (gene:Gene)-[:IS_IN_FAMILY]->(family:Family)-[:IS_IN_PANGENOME]->(pangenome:Pangenome) RETURN pangenome, gene";"Q12. Given this question: Write a Cypher query to return each pangenome, together with its associated spots. State also how many answers it returns.
+Are both of the following queries correct?
+1. MATCH (s:Spot)<-[:IS_IN_SPOT]-(:RGP)<-[:IS_IN_RGP]-(g:Gene)-[:IS_IN_FAMILY]->(:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) RETURN p.name as pangenome, COLLECT(s.name) AS spots
+2. MATCH (sp:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome) 
+RETURN distinct p.name, sp.name ";Q13. Explain the answer of the previous question;"Q14. If a query has the following return statements:
+
+ RETURN a, COLLECT (b)
+
+Would you assume based on this formulation that the names of b unique? Please motivate your answer.";"Q15. Given this question : Write a Cypher query to return each pangenome and its associated modules that contain at least a pair of gene families that are more than 80% identical. 
+ Which of the following query is correct?
+
+1. MATCH (p:Pangenome)<--()-->(m:Module)<--(f1:Family)<-[r:IS_SIMILAR]-(f2:Family) 
+WHERE f1 <> f2 AND r.coverage >= 0.8 
+RETURN p.name
+
+2 .MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]->(m:Module),  (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[sim:IS_SIMILAR]->(f2:Family) WHERE sim.coverage >= 0.8 return p.name as Pan-genome
+";"Q16. Given this question : Write a Cypher query to return each pangenome and its associated modules that contain at least a pair of gene families that are more than 80% identical. 
+What is the difference between the following queries?
+
+1. MATCH (p:Pangenome)<--()-->(m:Module)<--(f1:Family)<-[r:IS_SIMILAR]-(f2:Family) 
+WHERE f1 <> f2 AND r.identity >= 0.8 
+RETURN p.name
+
+2 . MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]->(m:Module),  (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[sim:IS_SIMILAR]->(f2:Family) WHERE sim.identity >= 0.8 return p.name as Pan-genome
+";"Q17. Given a query in which the pattern contains two nodes with the same label, for example:
+
+1 MATCH (p:Pangenome)<--()-->(m:Module)<--(f1:Family)<-[r:IS_SIMILAR]-(f2:Family) 
+
+2 .MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[:IS_IN_MODULE]->(m:Module),  (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[sim:IS_SIMILAR]->(f2:Family) WHERE sim.identity >= 0.8 return p.name as Pangenome
+
+The two nodes f1 and f2 are different? Could they be the same node? Motivate your answer.
+";"Q18. Given this question : Write a Cypher query that returns pairs of inter-pangenome families that both contain annotations and that are more than 80% identical.
+ Which of the following query is correct?
+
+1. MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) MATCH (p2:Pangenome)<-[:IS_IN_PANGENOME]-(f2:Family) MATCH (f)-[s:IS_SIMILAR]->(f2) WHERE s.identity >= 0.8 and p <> p2 and f is not null and f2 is not null RETURN f.name, f2.name
+
+2. MATCH (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[r1:IS_SIMILAR]-(f2:Family)
+-[:IS_IN_PANGENOME]-(p2:Pangenome) 
+WHERE r1.identity >= 0.8 
+AND p1.taxid <> p2.taxid 
+AND f1.annotation IS NOT NULL
+AND f2.annotation IS NOT NULL
+RETURN  f1.name, f2.name";"Q19. Given this question : Write a Cypher query that returns pairs of inter-pangenome families that both contain annotations and that are more than 80% identical.
+What is the difference between the following queries?
+
+1 MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) MATCH (p2:Pangenome)<-[:IS_IN_PANGENOME]-(f2:Family) MATCH (f)-[s:IS_SIMILAR]->(f2) WHERE s.identity >= 0.8 and p <> p2 and f is not null and f2 is not null RETURN f.name, f2.name
+
+2. MATCH (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[r1:IS_SIMILAR]-(f2:Family)
+-[:IS_IN_PANGENOME]-(p2:Pangenome) 
+WHERE r1.identity >= 0.8 
+AND p1.taxid <> p2.taxid 
+AND f1.annotation IS NOT NULL
+AND f2.annotation IS NOT NULL
+RETURN  f1.name, f2.name"
+student-54;We have some nodes to identify different types of elements and edges for relationships. This can help us to understand the inter-connected data in a graph structure.;To aggregate the results as a list;In Java language, we have collect operator;To reuse the previous results and rename them (with xxx as xxx) in a pipeline of cypher. ;We have as in SQL, when we write a complex sql, we need to rename them into different name using 'as' in select clause for nested sql.;Queries 2 and 3;The first returns just a list of unique pairs of a label and a list of properties, the second one will first filter the list of pairs without repeated pairs, and then returns a set of lists of properties. The third one will give firstly each label with its properties, and then aggregate all properties' lists, there are repeated results when the properties are not in the same order.;Queries 1 and 2;The second one has an useless step, althought it used distinct labels and n, but all nodes are differents, we have a long pipeline with a huge amount of data.;Query 2;The first only returns pairs of pangenome's name and gene's name, the second one will give the pangenome with a list of gene's names. The third one return a graph (nodes of pangenomes and genes), as there are no direct relationship between them, so this result have no sens.;In the results, we can have pangenomes with its spots' names, but the results are not satisfying;The first one returns a list of  spots' names and the pangenome, we can count the number of spots (2 results), the second one we can have pairs of pangenome and spot's name (494 ). [eskape2];The results will be for each 'a' with a list of 'b', we should consider if b is unique, otherwise, we wil have a lot of repeated results in the list of 'b';Query 2;The first one has not specified the node between the pangenome and the module, as there are different pangenomes in the same module. the second one can ensure the same module for the same pangenome, but the question has an ambiguity that if the second family should have the same pangenome or module, AND in Q15 is the coverage should be identity.;It depends on the design of data structure, semantically, they are no relationships of 'IS_SIMALAR' for the same node. ;Query 2;For the first one, it marks that the nodes are not null, this clause is useless as we haven't added optional for match, all nodes are not null.
+student-37;The schema shows the different types of nodes and relations, along with their attributes. This allows us to exploit the database later.;COLLECT transforms a list into a set.;/;WITH enables to filter matched values on a specific value of an attribute, ex match (n) with n.name = 'toto'.;WITH is also used in SQL queries.;Queries 2 and 3;The first one returns the different labels and properties, but properties are considered as a LIST, so [a,b] is not considered as [b,a], which means each label may appear several times if properties are given in a different order within the dataset. On the other hand, both the 2nd and 3rd ones considers keys(n) as a SET, so even if they appear in  a different order in the database, they will appear only once as {a,b} is the same set as {b,a}.;Query 2;The second query calculates the distinct labels first, and then calculates keys(n) for each label, which makes sure there is no redundance, while the first one returnsdistinct couples., which might no be the same (for instance is a property is forgotten in one of the nodes).;Query 2;"The first query return distinct COUPLES p.name, g.name, qo p.name is likely to appear a lot.
+The 3rd query is faster than the first one to execute, however it returns each couple (pang, gene) (even if they are equal!).
+Finally, the 2nd one associate each pangenome with a SET of genes.";No;In cypher, there is no need to explicit the node's type (neither the edge's one), so they both answer the question. However, the second one returns COUPLES (p.name,s.name) instead of SET.;After the collect clause, the names of b becomes unique because it transforms a list into a SET, and {a}={a,a};Queries 1 and 2;Both queries return the same answer, however the second one is executed faster than the first one ;F1 and F2 might be the same node only if there is an edge with label IS_SIMILAR between them (we can assume this is false in this case, because we know that a gene is similar to itself, so there is no need to create such an edge). However, in a general case, if pattern matches, they might be the same node.;Query 2;In the first query, there is no filter on annotations as 'f is not null' is always true (the node exists), contrarly to the second one where the filter is correcty implemented.
+student-59;Ce shéma est une représentation sous forme de graphe d'une base de données. Les ronds correpsondent à des tables, avec leurs attributs affichés dans les cadres. Les flèches indiquent les liens et dépendances entre les tables.;"Une requète Cypher contenant le mot COLLECT renvoie une liste à une colonne. Le mot clé RETURN est obligatoire.
+";En SQL probablement.;Le mot clé WITH sert à transmettre le résultat de la requète précédant le mot en tant qu'entrée de la requète suivant le mot.;It works like a pipe in shell.;Query 1;"La valeur retournée varie. 
+Dans la 3e réponse, on renvoie une liste contenant toutes les propriétés de chaque label. Dans la 1ère réponse, si deux nodes ont le même label mais des propriétés séparées, ils seront séparés en 2 lignes différentes dans l'Output.
+La 2e réponse utilise une méthode d'agrégation qui peut amener à des propriétés nestées.";Query 2;"La première réponse créé des groupes de labels et clés distincts, mais pour deux nodes ayant le même label, il peut y avoir 2 lignes différentes ayant le même label mais des propriétés associées différentes. Ceci est dû au DISTINCT labels(n), collect(keys(n)) qui créé une liste avec chaque couple de label et clé distinct.
+
+La deuxième réponse en revanche utilise WITH DISTINCT labels(n) AS labels, n, ce qui assure l'unicité des labels.";Query 2;"La 1ère réponse n'agregate pas par Pangenome, donc il y aura une ligne par gene.
+La 2e réponse aggregate bien comme demandé et renvoie une ligne par pangenome.
+La 3e réponse renvoie des paires de pangenome et de gènes sans rien aggregate.";No;"La première réponse aggregate les pangenomes, il y a donc une réponse par pangenome.
+La deuxième réponse créé des couples pangenome / gene, il y a donc autant de réponses qu'il y a de gènes.
+Techniquement, on nous demande ""return each pangenome, together with its associated spots"", ce qui implique pour moi une seule réponse par pangenome.";Cette requète retourne les valeurs de b associées à a, mais n'assure pas l'unicité : le mot clé COLLECT renvoie tout. On peut donc penser que si quelqu'un utilise cette formule, c'est que les noms de b sont uniques.;Query 2;La première requette ne renvoie pas le module associé. Sinon, les conditions sont différentes.;Les deux nodes peuvent être identiques, car aucune condition ne vérifie cela. Pour assurer cette condition, on pourrait ajouter par exemple : f1 <> f2;Query 2;Les deux queries ne vérifient pas de la même manière les conditions.
+student-27;Un schéma est une représentation structurée des données et des relations entre elles dans une base de données. L'astérisque (*) est utilisé pour indiquer des attributs ou des relations importants ou primordiaux dans ce contexte.;En Cypher, le mot-clé COLLECT est utilisé pour agréger les résultats d'une requête en une seule collection (liste). Il permet de regrouper plusieurs valeurs en une seule entité, facilitant ainsi l'analyse et le traitement des données agrégées;"Dans Python.
+Oui c'est comme groupBy en SQL.";le mot-clé WITH est utilisé pour enchaîner plusieurs parties d'une requête en passant les résultats de l'une à l'autre. Il permet de contrôler le flux de données, d'agréger des résultats, de réaliser des calculs et de filtrer des résultats intermédiaires avant de poursuivre la requête.;En SQL, la clause WITH pour définir des expressions de table communes temporaires. Cette fonctionnalité me rappelle certainement les constructions similaires que j'ai utilisées dans d'autres langages de requête et de programmation pour simplifier la logique et améliorer la lisibilité du code.;Query 2;"La requête 1 renvoie chaque étiquette de nœud distincte avec ses propriétés séparément, ce qui signifie que chaque propriété est listée individuellement pour chaque nœud, risquant de dupliquer les propriétés pour les nœuds ayant la même étiquette.
+
+ La requête 2 collecte les propriétés distinctes pour chaque étiquette, garantissant qu'il n'y a pas de duplication au sein de chaque ensemble de propriétés.
+
+La requête 3 collecte les propriétés sans s'assurer qu'elles sont distinctes, ce qui peut entraîner des duplications de propriétés au sein de chaque ensemble.";Query 1;"La requête 1 retourne chaque étiquette de nœud distincte avec l'ensemble de ses propriétés collectées. Cependant, cela peut entraîner la duplication des étiquettes si un nœud possède plusieurs étiquettes.
+
+La requête 2 utilise WITH DISTINCT pour garantir des étiquettes de nœud uniques, puis retourne ces étiquettes avec l'ensemble de propriétés collectées pour chaque nœud, éliminant ainsi les duplications potentielles des étiquettes.";Query 3;"La requête 1 recherche les relations directes entre les pangenomes, les familles et les gènes, renvoyant les noms distincts des pangenomes et des gènes associés. Cependant, cela peut entraîner des duplications si un gène appartient à plusieurs familles.
+
+La requête 2 utilise des relations définies entre les gènes, les familles et les pangenomes pour collecter les noms des gènes associés à chaque pangenome, en évitant les duplications et en organisant les résultats de manière plus structurée.
+
+La requête 3 suit un chemin similaire à la requête 2 mais retourne directement les nœuds de pangenome et de gène associés, fournissant ainsi plus d'informations sur la relation entre les pangenomes et les gènes.";No;"La requête 1 retourne tous les spots associés à chaque pangenome, mais elle collecte également les spots avec leurs associations de gènes, ce qui peut entraîner des doublons si un spot est associé à plusieurs gènes. Cela pourrait entraîner un comptage excessif de spots pour chaque pangenome.
+
+La requête 2 retourne correctement chaque pangenome avec ses spots associés, en garantissant l'unicité en utilisant le mot-clé DISTINCT. Elle se concentre uniquement sur la relation entre les spots et les pangenomes, fournissant ainsi des résultats précis sans doublons.";L'utilisation de COLLECT ne garantit pas l'unicité des valeurs de b. Sans le mot-clé DISTINCT, les noms de b ne sont pas automatiquement uniques dans la collection retournée.;Query 1;"La requête 1 trouve les modules liés à chaque pangenome qui contiennent au moins une paire de familles de gènes ayant une similarité supérieure à 80%.
+
+La requête 2 relie les familles de gènes à leurs modules respectifs dans chaque pangenome, puis vérifie la similarité entre les paires de familles de gènes indépendamment des modules.";"Dans le première requête, les noeuds f1 et f2 sont des nœuds différents car ils sont reliés par une arête étiquetée IS_SIMILAR, indiquant une relation entre deux familles de gènes distinctes.
+Mais dans le deuxième requête, f1 et f2 pourraient potentiellement représenter le même nœud, car ils sont tous deux connectés au même nœud famille (f1) dans différentes parties du motif.";Query 2;"La première requête cherche toutes les familles de différents pangenomes qui sont plus de 80% identiques, sans spécifier si elles contiennent des annotations. Elle vérifie également que les familles ne sont pas nulles et que les pangenomes sont différents.
+
+La deuxième requête sélectionne spécifiquement les familles qui sont plus de 80% identiques, appartenant à différents pangenomes, et qui contiennent toutes deux des annotations. Elle vérifie également que les pangenomes sont différents et que les annotations ne sont pas nulles pour les deux familles."
+student-29;"
+The schema is like a detailed map of the genetic landscape for a group of bacteria. It shows how all the genes in these bacteria are connected and organized. Imagine the pangenome as the entire collection of genes across different bacteria, where some genes are found in all and others only in some. The schema includes various parts like partitions (categories of genes), modules, and specific spots.";the COLLECT keyword is used to gather a bunch of related items and put them into a list. For example, if you're looking at a person and their friends in a database, `collect` can help you get a list of all that person's friends' names. It's like making a group of all the matches found in your query so you can see them all together in one place;In SQL, the concept similar to COLLECT in Neo4j is the GROUP_CONCAT function (in MySQL) or ARRAY_AGG (in PostgreSQL), which aggregate values from multiple rows into a single list;In Cypher, the WITH keyword is used to chain parts of a query together, allowing you to break complex queries into simpler steps and pass results from one part of the query to the next. It's like a way to create temporary results that you can use in the following parts of your query;In SQL, the concept similar to the WITH keyword is the Common Table Expression, also introduced with the WITH keyword. CTEs allow you to create temporary result sets that can be referenced within the main query, just like Cypher's WITH keyword passes intermediate results to the next stage of the query;Query 1;The main difference lies in how the properties are collected and whether duplicates are removed or retained within the collected list. The first query returns each property key separately for each node, the second query collects distinct property keys across all nodes, and the third query collects property keys without removing duplicates within each node;Queries 1 and 2;"In the first query, distinctness is applied only to the labels and not across all nodes. It collects all property keys for each node, regardless of whether the labels themselves are distinct across nodes.
+
+In the second query, the WITH DISTINCT ensures that the labels are distinct across all nodes before proceeding. This guarantees that each label is associated with its corresponding set of properties in a context where label duplication is avoided across all nodes.";Queries 1,2 and 3;"The correct query depends on the desired output format and whether only the names of pangenomes and genes are needed or the entire nodes. 
+
+Query 2 is likely the most suitable as it ensures all genes associated with each pangenome are collected. Query 1 may not return all genes associated with each pangenome if there are multiple families within a pangenome, while query 3 returns more detailed information than necessary (entire gene and pangenome nodes rather than just their names)";No;The first query is more precise and likely to return accurate results for each pangenome with its associated spots, since the COLLECT function ensures that multiple spots associated with the same pangenome are grouped together. However, the second query might not accurately capture all spots associated with each pangenome since it doesn't specify the relationships explicitly between spots and other entities;Yes, we can assume that the values of b are unique. The COLLECT function gathers values into a list, and by default, it removes duplicates, ensuring that each value appears only once in the resulting list ;Queries 1 and 2;Both queries can be considered correct, but Query 1 is more straightforward and concise in its approach. Query 2 has an overcomplicated structure as it uses multiple patterns to match gene families and modules, and there seems to be redundancy in matching pangenomes twice;"When you have a pattern with two nodes having the same label, like in the given examples, such as f1:Family and f2:Family, those nodes can indeed represent the same node or different nodes, depending on the context and the data in your graph.
+
+However, in these two queries it would be impossible to have the same nodes because we explicit the [r:IS_SIMILAR] and [:IS_IN_MODULE] relations, which suggests that they are different (based on the schema)";Queries 1 and 2;Both queries are correct in their approach to identifying pairs of inter-pangenome families meeting the specified criteria. They may differ slightly in their implementation details and readability, but both should yield valid results. Query 1 ensures that both families have annotations and belong to different pangenomes. Then, it returns the names of the families, and query 2 does the same but based on the based on their taxids
+student-38;Le schéma montre une classification de gènes dans un pangenome. Il illustre les différentes entités biologiques (Pangenome, Partition, Module, Spot, RGP, Gene, Contig, Genome, Family) et les relations entre elles. Chaque entité a des attributs spécifiques et les relations définissent comment ces entités sont connectées les unes aux autres, permettant ainsi de modéliser les interactions et les associations au sein du pangenome.;Le mot-clé COLLECT en Cypher est utilisé pour agréger des résultats en une seule collection. Il permet de rassembler plusieurs valeurs en une seule liste, ce qui est utile pour regrouper des éléments associés sous une même clé ou un même label.;La fonctionnalité de COLLECT en Cypher est similaire à la fonction GROUP BY combinée avec des fonctions d'agrégation (comme ARRAY_AGG ou GROUP_CONCAT) dans SQL. Elle rappelle également l'utilisation des collections dans les langages de programmation comme Python, où l'on peut regrouper des éléments dans des listes ou des ensembles.;Le mot-clé WITH en Cypher est utilisé pour chaîner des requêtes et passer des résultats intermédiaires d'une partie de la requête à une autre. Il permet également de filtrer des résultats avant de continuer le traitement dans la requête suivante.;"La fonctionnalité de WITH en Cypher est similaire aux clauses THEN ou TABLE d'Oracle SQL.
+Ou de With en Python ";Query 2;"1: Retourne les étiquettes de nœuds distinctes et les propriétés de chaque nœud sans les agréger.
+
+2: Retourne les étiquettes de nœuds distinctes et une liste des propriétés distinctes pour ces étiquettes, mais agrège les propriétés distinctes.
+
+3: Retourne les étiquettes de nœuds distinctes et une liste de toutes les propriétés associées à ces étiquettes, en les agrégeant.";Queries 1 and 2;"1: Cette requête retourne des étiquettes de nœuds distinctes et collecte leurs propriétés associées, mais sans filtrer les nœuds avant la collecte.
+
+2: Cette requête filtre d'abord les nœuds pour obtenir des étiquettes distinctes avant de collecter les propriétés, ce qui peut être plus efficace en termes de performance.";Query 3;"1: Retourne les noms distincts des pangenomes et des gènes sans agrégation, ce qui peut entraîner des duplications si un pangenome est associé à plusieurs gènes.
+
+2: Agrège les noms des gènes associés à chaque pangenome, ce qui permet de voir tous les gènes associés sous une même liste.
+
+3: Retourne chaque pangenome et chaque gène associé individuellement, similaire à Query 1 mais sans spécifier les noms distincts.";Ye;"Les deux requêtes retournent chaque pangenome avec ses spots associés. Cependant, elles diffèrent légèrement dans la manière dont elles collectent les informations :
+
+Query 1: Utilise COLLECT pour agréger les noms des spots associés à chaque pangenome.
+Query 2: Utilise DISTINCT pour retourner les noms distincts des pangenomes et des spots, ce qui peut générer un résultat légèrement différent si un spot est associé à plusieurs pangenomes.";La formulation RETURN a, COLLECT(b) n'implique pas nécessairement que les noms de b soient uniques. COLLECT crée une liste contenant toutes les valeurs de b associées à a, ce qui peut inclure des duplications si elles existent dans les données initiales.;Query 1;"1: Cherche des modules associés à des pangenomes contenant des familles de gènes similaires sans spécifier de relations de pangenome.
+
+2: Spécifie explicitement les relations de pangenome et de module, et cherche les familles similaires avec une couverture de similarité.";Les nœuds f1 et f2 représentent des familles de gènes distinctes, mais ils peuvent être les mêmes dans certains cas (autocomparaison). Cependant, l'utilisation de WHERE f1 <> f2 ou des relations distinctes de pangenome aide à garantir qu'ils sont différents.;Query 2;"1 : Ne vérifie pas explicitement si f et f2 ont des annotations.
+2 : Vérifie explicitement que les familles f1 et f2 ont des annotations."
+student-28;This schema represents  a way to organize data about bacteria, showing how different entities like genomes, contig, genes and gene families are interconnected. It shows relationships between these entities and how they are grouped.;COLLECT used to aggregate mutiple values into a list.;COLLECT remind me of GROUP BY in SQL and reduce in javascript witch is also used to aggregate values into a single object;WITH is used in Cypher to link mutiple parts of a query together to transfer intermediate results from on part of the query to another;In SQL with in similar to Cypher WITH. It allows the creation of temporary named results that can be refereced in subqueryies;Query 2;"Query 1 : Lists all property keys separately in the result set
+Query 2 : Collects all property keys across nodes and ensures only distinct keys are included in the collection
+Query 3 : Collects all property keys across nodes without ensuring uniqueness";Query 1;In the first query, the distinctness is applied to the combination of labels and properties across all nodes, whereas in the second query, it's applied only to the labels;Query 2;"Query 1: Distinct pangenome names with associated gene names
+Query 2:  list of genes per pangenome,
+Query 3: Detailed relationship info without gene name aggregation";Ye;Both queries correctly return each pangenome with its associated spots. They traverse the relationships from spots to pangenomes, collecting spot names for each pangenome;No, The use of the COLLECT function in Cypher aggregates multiple values of b into a collection, but it doesn't guarantee uniqueness by default. ;Query 1;The difference between the queries is in how they identify pairs of gene families that are more than 80% identical within modules;In the given queries, f1 and f2 could potentially represent the same node or different nodes depending on the graph;Query 2;Query 2: Matches pairs of families from different pangenomes, ensuring a similarity of more than 80% and that both families have annotations.
+student-60;It is a schema proposing a classification of viruses with tables and relations between them, it is used for classifying viruses;It returns one aggregated list containing values from an expression;Filter in Ocaml;WITH is used for creating aggregates used for the function WHERE;No idea;Query 1;"The first is the correct one
+The second query returns a set for each distinct node with one of its property 
+The third query returns a set for each node with one of its property";Query 2;Explained in 7;Query 2;Can't explain precisely;No;La forme des réponses n'est pas la même;Je n'ai pas compris la question;Query 2;The first only returns the name of the pangenome;They shouldn't be able to be the same but in this implementation they can be;Query 1;Can't explain precisely
+student-32;The schema represents genes, it has multiple propreties and belongs to families which have other propreties and caracteristics;collect is used to gather multiple values into a list;collect resembles GROUP BY in SQL;WITH is used to chain multiple parts of a query together, allowing you to perform operations in stages.;It doesn't reminds me of anything;Queries 2 and 3;"-Query 1 focuses on distinct node-label and property-key pairs.
+-Query 2 focuses on collecting distinct sets of property keys for each unique label combination.
+-Query 3 focuses on collecting all property keys for each unique label combination without ensuring distinctiveness within the collected sets.";Query 1;"Query 1 applies DISTINCT to entire rows, which may lead to unexpected results.
+Query 2 uses WITH DISTINCT to ensure proper handling of unique labels and correct aggregation of properties.";Queries 1 and 2;"Query 1: Returns distinct pangenome and gene name pairs. Does not aggregate genes by pangenome. Each row is a unique pangenome-gene pair.
+
+Query 2: Aggregates gene names into a list for each pangenome. Returns pangenome names with their associated list of gene names. Structured format ideal for viewing all genes under each pangenome.
+
+Query 3: Returns the actual Pangenome and Gene nodes. It does not aggregate genes by pangenome. Each row is a pair of pangenome and gene nodes, providing more detailed node information.";Ye;the first on would return less ansers because it groups them;Based on the formulation RETURN a, COLLECT(b), we should not assume that the names of b are unique. The COLLECT function will include all values, including duplicates.;Query 2;The main difference lies in how the patterns are matched and how the filtering is applied. Depending on the specific requirements and the data model, one approach might be more appropriate than the other. If the requirement is to ensure that compared families belong to the same module, Query 1 might be more suitable. If a broader comparison across modules is desired, Query 2 might be preferable.;The motivation for this behavior lies in the flexibility and generality of Cypher queries. By default, Cypher allows for the possibility that nodes with the same label might represent different entities in the graph, unless explicitly constrained by the relationships or conditions specified in the query.;Query 1;"Query 1 uses separate MATCH clauses and filters out null values for families.
+Query 2 combines the pattern in a single MATCH clause and filters based on the presence of annotations."
+student-35;"- It is a structure defining the organization of data and the relationships between different entities in a database
+- It's used to ensure data consistency and integrity, and to facilitate their management and retrieval.";Aggregating the results of a query into a single collection allows grouping multiple values into a single entity.;"- GROUP BY in SQL
+- MapReduce in Hadoop (I have studied it this semester in IPBD) it has a similar concept of mapping data and then reducing it into aggregated results.";WITH  is used to pass data between different parts of a query, enabling data manipulation and aggregation. It allows to separate query clauses and specify what data to pass forward to subsequent clauses.;WITH keyword is used to pass intermediate results between clauses, filter data based on conditions, and manage aliases for expressions or results, enhancing query flexibility.;Query 2;"1-  lists each node's properties individually, potentially duplicating properties for nodes with the same label.
+2-  collects distinct properties for each label, ensuring no duplication within each set of properties.
+3- collects properties without ensuring they are distinct, resulting in duplicate properties within each set.";Query 1;Query 1 is the correct answer because it directly returns distinct labels for nodes and collects all keys associated with each node. This ensures that each label is considered only once, and all corresponding properties are collected accurately. Query 2, on the other hand, applies DISTINCT to the combination of labels and nodes, causing duplication in property sets for nodes with multiple labels.;Query 3;"The diffrence is : 
+
+-Query 1 returns distinct combinations of Pangenome names and Gene names, that cause duplication if a gene is associated with multiple families within the same pangenome.
+
+-Query 2 collects all gene names associated with each pangenome, so each gene is associated only with its corresponding pangenome, without duplication.
+
+-Query 3 returns each gene together with its associated pangenome, giving a detailed view of gene-pangenome associations without aggregation of genes.";No;"Only query 1 is correct because it specifies the relationships and labels in the pattern, collecting the associated spot names for each pangenome.
+But Query 2, use empty parentheses instead of labels for nodes that could lead to redundant or inaccurate results.";"No, we cannot assume that the names of ""b"" are unique based only on that.
+COLLECT  gathers all the values of ""b"" into a collection. it does not enforce uniqueness by default. So if there is duplicate values of ""b"", they will be all included in the collection.
+-> To ensure uniqueness in the collection of ""b"" values, we should use DISTINCT like for example : RETURN a, COLLECT(DISTINCT b)"".";Query 1;"The difference is in their traversal patterns:
+
+Query 1 directly traverses from pangenome to module to pairs of gene families, checking for similarity.
+Query 2 traverses to families within modules twice, which cause redundant results, then checks for similarity.";"In the first query, nodes f1 and f2 are different nodes because they are connected by an edge labeled IS_SIMILAR, indicating a relationship between two distinct gene families.
+However, in the second query, f1 and f2 could potentially represent the same node because they are both connected to the same family node (f1) in different parts of the pattern.";Query 2;"Query 1 doesn't enforce that both families have annotations. It simply matches all families in different pangenomes with similarity greater than or equal to 80%. Additionally, the null check for families (f is not null and f2 is not null) is unnecessary in this context as it's implied by the pattern matching.
+Query 2, explicitly checks that both families have annotations and ensures that they belong to different pangenomes. It also considers the identity threshold for similarity."
+student-36;schéma des pangénomes avec les familles de gênes etc...;"ça permet de faire des agrégations et donc d'avoir des informations autour d'un élément en particulier. Je l'utilise beaucoup quand j'ai besoin d'utiliser plusieurs fois le mot-clé ""distinct""";je vois pas trop comme ça;ça permet d'associer plusieurs requêtes et de les filer;ça me fait penser aux fonctions auxiliaires en ocaml mais je doute que ce soit la réponse attendue;Query 1;"La requête 1 renvoie les différents labels et toutes les clés associées à chacune, mais il peut y avoir plusieurs fois la même chose dans un ordre différent pour les labels
+la 2 renvoie chacune des étiquettes et des propriétés de façon unique , mais ce n'est pas exactement l résultat attendu
+la 3 renvoie pareil que la 2, mais s'il y a un terme qui revient plusieurs fois, il sera listé";Queries 1 and 2;pour moi, il n'y a pas de différence puisque labels= distinct labels(n);Query 1;"1: on a une distinction sur les pangénomes, ce qui correspond à la question, puis les gênes liés (mais on a va avoir beaucoup de résultats, même si on pourrait considérer que c'est correct)
+2: il y a une agrégation qui rend la lecture plus agréable, mais je crois que ça ne fonctionne pas à cause de l'absence de ""distinct""
+3: on fait toutes les combinaisons possibles, mais c'est trop long";No;il manque un distinct dans le collect, ça s'exécute mal sinon;sans distinct, pas forcément;Query 1;on n'a pas précisé que f<>f2 , et la requête 2 pourrait se simplifier;ils pourraient totalement être le même nœud puisqu'on a pas spécifié f1<>f2;Queries 1 and 2;"ça a l'air similaire, même si j'avoue ne pas exactement voir à quoi correspond ""annotations"" je croyais que c'était une étiquette/clé"
+student-31;the graph depict the different type of gene and their connection between each other;COLLECT helps efficiently manage multiple query results by grouping, structuring, de-duplicating, and aggregating them.;The COLLECT function in Cypher is similar to aggregation functions and techniques found in SQL (GROUP_CONCAT, ARRAY_AGG), Python (list comprehension, groupby), JavaScript (reduce), and R (aggregate, dplyr). These constructs allow grouping and collecting data into lists or arrays for further processing, much like COLLECT does in Cypher.;The WITH keyword in Cypher is used to chain query parts and manage the flow of data. Its primary uses include applying conditions to intermediate results, aggregating data and using the results in subsequent parts, renaming and controlling which variables to carry forward, implementing pagination with SKIP and LIMIT, and breaking down complex queries to avoid Cartesian products. Using WITH ensures efficient, readable, and maintainable Cypher queries.;The WITH keyword in Cypher is similar to SQL's CTEs, method chaining in Python's pandas, LINQ in C#, chaining Promises in JavaScript, and the pipe operator in R's dplyr. These constructs help manage intermediate results and query flow efficiently, making complex queries more readable and maintainable.;Query 3;"MATCH (n)
+UNWIND labels(n) AS label
+RETURN label, collect(DISTINCT keys(n)) AS properties";Query 2;"MATCH (n)
+UNWIND labels(n) AS label
+RETURN label, collect(DISTINCT keys(n)) AS properties
+Query 2 is the better query because it ensures that properties are correctly aggregated for each distinct label by maintaining the context of each node. This avoids the potential issue of mixed properties that can occur in Query 1.";Query 2;"-Query 1:
+
+Relationship Flexibility: Uses -- to match any type of relationship in any direction.
+Output: Returns distinct pairs of pangenome names and gene names without aggregating genes by pangenome.
+
+-Query 2:
+
+Relationship Specificity: Uses explicit relationships ([:IS_IN_FAMILY] and [:IS_IN_PANGENOME]) with specified directions.
+Output: Aggregates gene names into a list for each pangenome, providing a structured and organized result.
+
+-Query 3:
+
+Relationship Specificity: Uses explicit relationships with specified directions.
+Output: Returns individual pangenome and gene nodes without aggregation, resulting in separate rows for each pangenome-gene pair.";Ye;"Query 1: Provides an aggregated list of spots for each pangenome.
+Query 2: Provides distinct pangenome-spot pairs without aggregation.";Based on the formulation RETURN a, COLLECT(b),  the names of b aren't unique. If uniqueness is required, use COLLECT(DISTINCT b) to ensure that the collected list contains only unique values.;Query 2;"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[:IS_IN_MODULE]->(m:Module),
+      (f1)-[sim:IS_SIMILAR]->(f2:Family)
+WHERE f1 <> f2 AND sim.coverage >= 0.8
+WITH p, m
+RETURN DISTINCT p.name AS Pangenome, collect(DISTINCT m.name) AS Modules
+";"Query 1: ensures f1 and f2 are different nodes due to the explicit condition f1 <> f2 in the WHERE clause.
+Query 2: does not have a condition to ensure f1 and f2 are different. Therefore, it is possible that f1 and f2 could be the same node in this query.";Queries 1 and 2;"Query 2 is preferred because it clearly defines the relationships and ensures that the Pangenome nodes are different by comparing their taxonomy IDs.
+Query 1 could potentially work but is less efficient and less clear in ensuring that the Pangenome nodes are different, and it relies on multiple MATCH statements
+"
+student-61;il permet de représenter la similarité génétique entre différentes familles.;Elle permet de rassembler des résultats sous forme de liste.;En SQL : GROUP_CONCAT;Permet de renvoyer le résultat d'une requête Cypher vers une autre;En sql : WITH également;Query 1;keys(n) renvoie une liste des différentes propriétés, on n'a donc pas besoin de faire un collect;Query 2;on récolte d'abord les labels distincts puis on rassemble les attributs dans la 2e requête.;Query 2;La 3e récupère l'ensemble des gènes associés à un pangénome, il faut donc utiliser la 2e requête.;No;"1 : Pour chaque pangénome, on renvoie la liste des différents spots associés.
+2 : Pour chaque pangénome, on renvoie uniquement 1 spot. Si plusieurs spots sont associés à un pangénome, il y aura plusieurs entrées pour le pangénome.";Non, collect ne vérifie pas l'unicité d'un jeu de données.;Query 1;Il faut vérifier que f1 et f2 sont différents pour ne pas fausser notre BDD;Oui, f1 pourrait être f2 après le match : rien ne nous empêche qu'il soit égaux;Query 2;on fait différentes sous requêtes dans la 1 alors qu'on ne le fait pas dans la 2e
+student-62;C'est un graphe qui fait le lien entre des tables contenant des attributs ;COLLECT est utilisé pour créer des listes avec lignes retourné par une autre subrequête ;en SQL;The WITH clause allows query parts to be chained together. It affects variables in scope;en SQL il y a aussi WITH;Query 1;"entre la 1 et la 2 les clés ne sont pas les mêmes, on va retrouver des cas uniques dans la 2 contrairement à la 1. 
+sachant que la 2 et la 3 ont le keyword COLLECT qui lui vient créer des listes avec des lignes (question 2) 
+";Query 2;"la différence se joue au niveau du (n RETURN labels) et le (WITH):
+
+le WITH assure qu'il y ait des uniques labels associés ";Query 2;on check si les gene sont bien dans la famille etc...;Ye;"la requete 1 permet d'avoir une liste de spot names groupé avec chaque pangenome 
+la requete 2 liste les pairs de pangenome et spot name distinct ";le COLLECT n'assure pas que les valeurs uniques de B seront uniques;Query 2;la 1 ne retourne pas chaque pangenome ET son module associé;"ils sont différents, pour assurer qu'ils soient les même il faut ajouter ""WHERE f1 <> f2""";Query 2;.

@@ -1,0 +1,1397 @@
+TEST ID;consent;What language can you program in? (List the different languages separated by a comma);How do you rate your knowledge of relational databases (e.g., MySQL))?(1 = never heard of it, 5 = can use it in a professional environment);How do you rate your knowledge of NoSQL databases (e.g., MongoDB, Cassandra)?(1 = never heard of it, 5 = can use it in a professional environment);Which one in particular?;How do you rate your knowledge of other graph structures beside property graphs (e.g., RDF and SPARQL)?(1 = never heard of it, 5 = can use it in a professional environment);Are you knowledgable of any of the following graph query languages?;Q1;Q2;Q3;Q4;Q5;Schema;Q6;Q7;Q8;Q9;Q10;Q11;Q12;Q13;Q14;Q15
+student-0;Accept;Python,java, C ,Dart;4;4;MongoDB, InfluxDB;3;OpenCypher;"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+RETURN COLLECT(label) AS DistinctLabels, COUNT(label) AS TotalDistinctLabels
+
+the number of the answers is 9 
+
+Explanation : 
+The query lists all distinct node labels in the Neo4j database and calculates the total number of these distinct labels, providing both a comprehensive label list and a count of label variety in one result set.";"MATCH ()-[r]->()
+WITH DISTINCT type(r) AS RelationshipType
+RETURN COLLECT(RelationshipType) AS RelationshipTypes, COUNT(RelationshipType) AS TotalDistinctRelationshipTypes
+
+
+the number of the answers is 10
+
+Explanation : The query retrieves and counts all unique relationship types in the Neo4j database, combining the list of distinct types and their total count in a single result.";"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (n)
+WHERE label IN labels(n)
+RETURN label, COLLECT(DISTINCT keys(n)) AS Properties
+
+
+the count is : 9
+
+Explanation : The query retrieves each unique node label and its associated property keys from the Neo4j database, ensuring that each label and its properties are listed distinctly.";MATCH ()-[r]->() WITH type(r) AS RelationshipType, r RETURN DISTINCT RelationshipType, keys(r) AS Properties // the number of the anwsers is 10 // explanation : The query retrieves each unique relationship type and its associated property keys from the Neo4j database, ensuring that each relationship type and its properties are listed distinctly.;"MATCH (n1)-[r]->(n2)
+RETURN labels(n1)[0] AS NodeLabel1, labels(n2)[0] AS NodeLabel2, type(r) AS RelationshipType, COUNT(*) AS Count
+count : 10
+Explanation : The query identifies distinct pairs of node labels (NodeLabel1 and NodeLabel2), along with the type of relationship (RelationshipType), and includes a count of how many times each combination appears in the graph.
+
+MATCH (n)
+RETURN DISTINCT LABELS(n) AS NodeLabels, COUNT(n) AS Count
+
+This query returns a list of unique node labels along with the count of nodes belonging to each label.
+
+MATCH ()-[r]->()
+RETURN DISTINCT TYPE(r) AS RelationshipType, COUNT(r) AS Count
+
+This query identifies all unique relationship types in the dataset and counts how many times each type appears. It provides insights into the diversity of relationships in your graph.";https://drive.google.com/open?id=1nf9kEOWGQho2ELzruw-ADxzafSSGQ4W3;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, collect(g.name) AS Genes
+
+it return 2 answers.";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots
+
+it return 2 answers as well.";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules //it returns 2 answers;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8  WITH p1 AS Pangenome1, p2 AS Pangenome2,       f1 AS Family1, f2 AS Family2,       r.identity AS Similarity,      COLLECT(DISTINCT f1.annotation) AS Annotations1,       COLLECT(DISTINCT f2.annotation) AS Annotations2  WHERE SIZE(Annotations1) > 0 AND SIZE(Annotations2) > 0  RETURN Pangenome1.name AS Pangenome1, Annotations1,         Pangenome2.name AS Pangenome2, Annotations2,         Similarity // it returns 7 results;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood // it return 2 answers as well;;;;;
+student-1;Accept;c++, java, python, prolog/datalog, js;3;1;InfluxDB, Other;1;;"Match (n) Return Distinct labels(n)
+
+answer : 9 records";"Match ()-[u]-() Return Distinct type(u)
+
+answer : 10 records";"Match (n)
+Unwind keys(n) as k
+Return Distinct labels(n), collect(Distinct k)
+
+answer : 9 records";Match ()-[r]-() Unwind keys(r) as k Return Distinct type(r), collect(Distinct k)  // Answer : 9 records;"// compute every type of relation between nodes with count
+Match p = ((a)-[r]->(b))
+Return distinct labels(a), type(r), labels(b), count(p)
+
+// compute the average numbre of outgoing edge by node label
+Match p = ((a)-[]->())
+With a, count(p) as outgoing
+return distinct labels(a), avg(outgoing)
+
+//same with ingoing
+Match p = ((a)<-[]-())
+With a, count(p) as ingoing
+return distinct labels(a), avg(ingoing)";https://drive.google.com/open?id=1d8JmaPa0BVJ7uSGKdoWj5n9OvDzGgSGW;"match (p:Pangenome)<--(:Family)<--(g:Gene) 
+with p, collect(distinct g.name) as l
+return distinct p.name, l
+
+answer : 2 records with lists of size 1 and 5476";"match (p:Pangenome)<--(:Family)<--(:Gene)-->(:RGP)-->(s:Spot) 
+with p, collect(distinct s.name) as l
+return distinct p.name, l
+
+answer : 2 records with lists of size 292 and 364";match (p:Pangenome)<--(f1:Family)-->(m:Module), (f1)-[i:IS_SIMILAR]-(f2:Family)-->(m) where i.coverage>= 0.8 with p, collect(distinct m.name) as l, count(distinct m) as c return p.name, c, l      // answer : 2 records, with lists of size 5 and 1;match (p1:Pangenome)<--(f1:Family)-[i:IS_SIMILAR]->(f2:Family)-->(p2:Pangenome) where i.identity >= 0.8 and f1.annotation is not null and f2.annotation is not null and not(p1 = p2) return f1.name, f2.name     // answer : 7 records;match (p:Pangenome)<--(f1:Family)-[:NEIGHBOR]->(f2:Family) where f1.annotation is not null with p, collect(distinct f2.name) as list return p.name, list     // answer : 2 records with lists of size 183 and 301;;;;;
+student-2;Accept;Python;3;3;MongoDB;2;OpenCypher, SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels, count(DISTINCT labels(n)) AS labelCount
+
+Answer is 9";"MATCH ()-[r]->()
+WITH DISTINCT type(r) AS relationship_type
+RETURN relationship_type, count(*) AS count
+
+Answer 10";"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (n)
+WHERE label IN labels(n)
+RETURN label, COLLECT(DISTINCT keys(n)) AS Properties
+
+the result is 9";MATCH ()-[r]->() WITH type(r) AS RelationshipType, r RETURN DISTINCT RelationshipType, keys(r) AS Properties       The answer is 10;"MATCH (n)
+RETURN DISTINCT labels(n) AS node_labels, COUNT(*) AS count
+
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS relationship_type, COUNT(*) AS count
+";https://drive.google.com/open?id=1_CPb5_4yvyRmSKyNDo-UvpqeposBZEYy;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, collect(g.name) AS Genes, COUNT(g) AS GeneCount
+
+2 records each record contains  651827         1044515";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots,  COUNT(s) AS SpotCount
+There is:  2 records each record contains 55264 	238655";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules, COUNT (m) as ModuleCount            2 records each one 8 and 7;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8 RETURN p1.name AS Pangenome1, p2.name AS Pangenome2, COLLECT(DISTINCT f1.annotation), COLLECT(DISTINCT f2.annotation)            2 records;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood , COUNT(n) as Neicount          2 records each one is 32270       30147;;;;;
+student-3;Accept;Python, JavaScript;3;1;Other;1;;"MATCH (n) return DISTINCT labels(n) 
+9 answers";"MATCH (a)-[x]->(b) return DISTINCT type(x)
+10 answers";"MATCH (n) return DISTINCT labels(n),keys(properties(n))
+13 answers";10 answers: MATCH (a)-[x]->(b) return DISTINCT type(x),keys(properties(x));"MATCH (x) return COUNT(x) (result 1761278)
+MATCH (x) where x.name = """" return COUNT(x) (result 1443691)
+MATCH (a)-[x]->(b) return count(x) (result 3926638)
+MATCH (a)-[x]->(b) return DISTINCT labels(a),type(x),labels(b) (10 Records)
+MATCH (a)-[x]-(b) return DISTINCT labels(a),type(x),labels(b) (18 Records)";https://drive.google.com/open?id=1gym95kBjXQQ4B_WwhB5W5CAMVKUukRtx;"match (a:Gene)-[*2]->(b:Pangenome)
+with b, collect(distinct a.name) as l
+return DISTINCT b.name, l
+
+(2 answers, containing 1 empty)";"match (s:Spot)<-[*2]-(g:Gene)-[*2]->(p:Pangenome)
+with p, collect(distinct s.name) as l
+return DISTINCT p.name, l
+2 records";match (p:Pangenome)<--(f1:Family)-->(m:Module) match (m:Module)<--(f1:Family)-[fp]-(f2:Family) where fp.identity>=0.8 with p, collect(DISTINCT m.name) as l return p.name, l // (2 records);match (f1:Family)-->(p1:Pangenome) match (f2:Family)-->(p2:Pangenome) match (f1)-[fp]->(f2) where f1.annotation is not null and f2.annotation is not null and NOT(p1.name=p2.name) and fp.identity>=0.8 return f1.name, f2.name // 7 answers;match (p:Pangenome)<--(f1:Family)-[:NEIGHBOR]->(f2:Family) where f2.annotation is not null with p, collect(distinct f2.name) as l, count(distinct f2) as ct return p.name, ct, l // 2 records;;;;;
+student-4;Accept;Python, java, scala, R;4;4;MongoDB, Other;3;OpenCypher;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels, count(DISTINCT labels(n)) AS labelCount
+Answer is 9";"MATCH ()-[r]->()
+WITH DISTINCT type(r) AS relationship_type
+RETURN relationship_type, count(*) AS count
+
+Answer 10";"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (n)
+WHERE label IN labels(n)
+RETURN label, COLLECT(DISTINCT keys(n)) AS Properties
+
+the result is 9";MATCH ()-[r]->() WITH type(r) AS RelationshipType, r RETURN DISTINCT RelationshipType, keys(r) AS Properties       The answer is 10;-;https://drive.google.com/open?id=1QMC57M10RmKkj-Twzo3TmoLs6LUFywMt;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN DISTINCT p.name AS Pang, collect(DISTINCT g.name) AS Genes, COUNT(DISTINCT g) AS GC
+it returns two answers 651827
+1044515";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN DISTINCT p.name AS Pang, COLLECT(DISTINCT s.name) AS Spots, COUNT(DISTINCT s) AS Spot 
+answer
+292";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pang, collect(DISTINCT m.name) AS Modules || It return two answers of two pangenomes with 7 modules each;MATCH (f1:Family)-[s1:IS_SIMILAR]-()-[:IS_IN_PANGENOME]->(p1:Pangenome),       (f2:Family)-[s2:IS_SIMILAR]-()-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE s1.identity >= 0.8 AND s2.identity >= 0.8   AND EXISTS(f1.annotation) AND EXISTS(f2.annotation) RETURN DISTINCT f1.name, f2.name 257 results;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pang, COLLECT(DISTINCT n.annotation) AS Neighborhood, COUNT(DISTINCT n.annotation) | | It returns two answers for the two pangenome first with 76 result and the second with 69 results;;;;;
+student-5;Accept;C,Java,Python,Javascript;4;2;InfluxDB;5;OpenCypher, GraphQL, SQL/PGQ, SPARQL;"MATCH (node)
+RETURN DISTINCT labels(node) AS nodeLabel;
+9 results";"MATCH (n)-[r]->(m) RETURN  distinct type(r) as arcType;
+10 results";"match(n) return distinct labels(n), keys(properties(n));
+13 results";"MATCH (n)-[r]->(m) RETURN  distinct type(r) as arcType, keys(properties(r)) as Arcproperty;  10 results";"MATCH (n)-[r]-(m) RETURN distinct labels(n),  type(r) ,labels(m); 18 results
+MATCH (n)-[r]-(m) RETURN  distinct type(r) as arcType; 10 results
+MATCH (n) return  distinct keys(properties(n)); 10 results 
+MATCH (n) return COUNT(n)l 1761278 results";https://drive.google.com/open?id=1AlIVKefedJGa70oldlmgXfKDctMYpk3k;"MATCH (g:Gene)-[*2]->(p:Pangenome)
+WITH p, COLLECT(DISTINCT g.name) AS genes
+RETURN p.name as pangerome_name, genes; // 2 results";"MATCH (g:Gene)-[*2]->(p:Pangenome), (g:Gene)-[*2]->(s:Spot)
+with p, collect(DISTINCT s.name) as spot_names return p.name as pangerome_name, spot_names;  //2 results";match (p:Pangenome)<--(f1:Family)-->(m:Module) match (m:Module)<--(f1:Family)-[sim]-(f2:Family) where sim.identity>0.8 with p, collect(DISTINCT m.name) as modules return p.name as pangerome_name, modules // 0 results;match (f1:Family)-->(p1:Pangenome) match (f2:Family)-->(p2:Pangenome) match (f1)-[sim]->(f2) where f1.annotation is not null and f2.annotation is not null and p1.name <> p2.name and sim.identity>0.8 return f1.name , f2.name //0 results;match (f1:Family)<-[:NEIGHBOR]-(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) WHERE  f1.annotation IS NOT  NULL return p.name as pangenome_name, collect(distinct f1.name) as neighbour_name, count(distinct f1) as neighbour_number  //2 results;;;;;
+student-6;Accept;Python, C++, Java.;4;3;Other;3;OpenCypher, SQL/PGQ;"Q1: MATCH (s) RETURN DISTINCT labels(s) AS label
+It returns 9 answers ( labels ).
+Explanation :
+MATCH (s) = finds all nodes in the database.
+RETURN DISTINCT labels(s) = returns a distinct list of labels for each node. This give me all unique labels used in your database.";"Q2: MATCH ()-[a]-() RETURN DISTINCT type(a) AS Relationship
+It returns 10 answers ( relationship types ).
+Explanation :
+MATCH ()-[r]-() = matches all relationships in the database.
+RETURN DISTINCT type(r) = returns all unique types of relationships.";"Q3 : MATCH (s) UNWIND labels(s) AS label UNWIND keys(s) AS property
+WITH label, COLLECT(DISTINCT property) AS PropertySet
+RETURN label, PropertySet, SIZE(PropertySet) AS PropertyCount
+It returns 9 answers ( labels ) with the number of properties of each label (Ex : ""Gene"" have 9 properties).
+Explanation :
+UNWIND labels(s) AS label expands the labels of each node.";Q4: MATCH ()-[a]->() WITH DISTINCT type(a) AS Relationship, keys(a) AS properties RETURN Relationship, properties AS PropertySet, SIZE(properties) AS PropertyCount It returns 10 answers ( relationship types ). Explanation: MATCH ()-[a]->() = matches all relationships in the database. WITH DISTINCT type(a) = AS RelationshipType, keys(r) AS properties gets the distinct relationship types and their properties. RETURN RelationshipType, properties, SIZE(properties) returns the relationship type, its properties, and the count of these properties.;"Find the Most Common Relationship Type:
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS Frequency ORDER BY Frequency DESC LIMIT 1
+List All Properties for a Specific Node Label :
+MATCH (n:Gene) WITH keys(n) AS properties
+UNWIND properties AS property
+RETURN DISTINCT property";https://drive.google.com/open?id=12mIk7TVDjiMKeS7kPRp_uzp7CvaaYcWY;"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()<-[:IS_IN_FAMILY]-(g:Gene)
+RETURN p.name AS Pangenome, collect(g.name) AS Genes
+Answers : 2, ""Enterobacter.cloacae"" and ""Acinetobacter.baumannii"".";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()<-[:IS_IN_FAMILY]-()-[:IS_IN_RGP]->()-[:IS_IN_SPOT]->(s:Spot)
+RETURN p.name AS Pangenome, collect(s.name) AS Spots
+Answers : 2, like the first one.";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules Answers : 2.;"MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE s.identity >= 0.8 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL AND p1.name = p2.name RETURN f1.name AS Family1, f2.name AS Family2 Answers : 1, (""GCA_006228165.1_CDS_2138"", ""GCA_001057255.1_CDS_4340"").";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood. Answers : 2.;;;;;
+student-7;Accept;python, c#, java, javascripts;3;2;MongoDB, Other;1;OpenCypher;"MATCH (n) RETURN DISTINCT labels(n) AS nodellabel;
+9 records";"MATCH (a)-[r]->(b) RETURN DISTINCT type(r) AS allRelationshipType;
+10 records";"MATCH (a) RETURN DISTINCT labels(a), keys(properties(a));
+13 records";"MATCH (a)-[r]->(b) RETURN DISTINCT type(r), keys(properties(r)); => 10 records";"- Q1: Query to Retrieve Relationship Types:
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS RelationshipType, COUNT(DISTINCT type(r)) AS NumRelationships; 
+=> 10 records
+
+- Q2: Query to Explore Node Properties:
+MATCH (n)
+UNWIND keys(n) AS PropertyKey
+RETURN DISTINCT PropertyKey, COUNT(DISTINCT PropertyKey) AS NumProperties; 
+=> 17 record
+
+- Q3: Query to Identify Nodes with Specific Labels:
+MATCH (n:Family)
+RETURN n, COUNT(n) AS NodeCount; 
+=> 37353 records";https://drive.google.com/open?id=13FnqcAAjCoYjRC1EI3cl0pz79f61p1R7;"MATCH (g:Gene)-->(f:Family)-->(p:Pangenome)
+WITH p, COLLECT(DISTINCT g.name) AS assgenes
+RETURN DISTINCT p.name, assgenes
+=> 2 answers";"MATCH (s:Spot)<--(:RGP)<--(:Gene)-->(:Family)-->(p:Pangenome) WITH p, COLLECT(DISTINCT s.name) AS assSpot RETURN DISTINCT p.name, assSpot
+=> 2 answers";MATCH (p:Pangenome)<--(f1:Family)--> (m:Module),  (f1)-[i:IS_SIMILAR]-(f2:Family),(f2)-->(m) WHERE i.coverage >=0.8 WITH p, collect(DISTINCT m.name) as d, COUNT(DISTINCT m) as e RETURN p.name, d, e => 2 answers;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE s.identity >= 0.8 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL RETURN f1.name AS Family1, f2.name AS Family2  => 8 answers;MATCH (p:Pangenome) <-- (f1:Family)-[n:NEIGHBOR]->(f2:Family) WHERE f1.annotation is not null WITH p, collect(DISTINCT f2.name) as l,  COUNT(DISTINCT f2.name) as a RETURN p.name, a, l  => 2 answers;;;;;
+student-8;Accept;Python, Java;3;1;Redis;1;OpenCypher, SQL/PGQ;"MATCH (n) RETURN DISTINCT labels(n) AS allNodeLabels;
+Answers it returns: 9 record";"MATCH ()-[r]->() RETURN DISTINCT type(r) AS allRelationshipType;
+answers it returns: 10 record";"MATCH (n) RETURN DISTINCT labels(n), keys(properties(n));
+answers it returns: 13 record";"MATCH ()-[r]->() RETURN DISTINCT type(r), keys(properties(r)); => 10 records";"Query 1: Query to List All Node Labels and their counts:
+MATCH (n) 
+RETURN labels(n) AS nodeLabels, COUNT(n) AS nodeCount ORDER BY nodeCount DESC;
+=> 9 records
+Query 2: Query to List All relationship and their counts
+MATCH (a)-[r]->(b) 
+RETURN DISTINCT type(r) AS relationshipType, COUNT(r) AS relationshipCount;
+=> 10 records
+Query 3: Record number
+MATCH (n) RETURN COUNT(n)
+=> 1761278
+Query 4: 
+MATCH (a)-[r]->(b) RETURN DISTINCT labels(a), type(r), labels(b);
+=> 10 record";https://drive.google.com/open?id=1JjfBFN86peiQf0SH8gso69C7cZYdmSph;"Query: 
+MATCH (g:Gene)-->(f:Family)-->(p:Pangenome)
+WITH p, COLLECT(DISTINCT g.name) AS associatedGenes
+RETURN DISTINCT p.name, associatedGenes
+
+Answers: 2 records";"Query:
+MATCH (p:Pangenome)<--(f:Family)<--(g:Gene)-->(r:RGP)-->(s:Spot)
+WITH p, COLLECT(DISTINCT s.name) AS associatedSpots
+RETURN DISTINCT p.name, associatedSpots
+
+Answers: 2 records";MATCH (p:Pangenome)<--(f1:Family)--> (m:Module) MATCH (f1)-[i:IS_SIMILAR]-(f2:Family), (f2)-->(m) WHERE i.coverage >= 0.8 WITH p, COLLECT(DISTINCT m.name) as associatedModules, COUNT(DISTINCT m) as moduleCount RETURN p.name, associatedModules, moduleCount => Answers: 2 records;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[i:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE i.identity >= 0.8 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL RETURN f1.name AS Fam_1, f2.name AS Fam_2 => answers: 8 records;MATCH (p:Pangenome) <-- (f1:Family)-[n:NEIGHBOR]->(f2:Family) WHERE f1.annotation is not null WITH p, collect(DISTINCT f2.name) as list,  COUNT(DISTINCT f2.name) as a RETURN p.name, a, list => Answers: 2 records;;;;;
+student-9;Accept;python, java;3;2;Other;3;SQL/PGQ, SPARQL;"NB: These responses represent my second attempt. I kindly request that you consider them as replacements for my initial responses.
+
+
+The query: 
+MATCH (n)
+RETURN DISTINCT labels(n) AS DistinctLabels
+
+Explication:  finds all unique combinations of labels assigned to nodes, returning each distinct set as a separate entry
+
+
+To know how many answers it returns we can do this query:
+MATCH (n)
+WITH DISTINCT labels(n) AS DistinctLabels
+RETURN COUNT(DistinctLabels) AS NumberOfDistinctLabelSets
+
+Number of answers is 9";"Query: MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS DistinctRelationshipTypes
+
+it retrieves every unique type of relationship present in the graph database by matching all relationships and returning their distinct types.
+
+Number: 10";"MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabel, keys(n) AS Properties
+
+
+- it retrieve a list of all distinct node labels in the dataset, along with the properties associated with each node 
+
+Number: 18";MATCH ()-[r]->() RETURN DISTINCT type(r) AS RelationshipType, keys(r) AS Properties    Explication: it identifies each unique type of relationship in the graph, along with the distinct set of properties associated with each relationship type. It matches all relationships, then groups and returns their types and properties.       Number: 10;"----Query 1: ----
+
+MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabel, COUNT(n) AS Count
+-it returns a list of all distinct node labels along the count of nodes for each label. 
+-Number: 9
+
+----Query 2: ----
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS RelationshipType, COUNT(r) AS Count
+-it returns a list of all distinct relationship types and the count of relationships for each type.
+-Number: 10
+
+-----Query 3: -----
+
+
+MATCH (n)
+WHERE exists(n.property_name)
+RETURN DISTINCT labels(n) AS NodeLabel, keys(n) AS Properties
+-it returns the labels of nodes with the specified property and the properties themselves. 
+-Number: 10
+
+
+-----Query 4: -----
+MATCH (n)-[r]->()
+RETURN DISTINCT labels(n) AS NodeLabel, type(r) AS RelationshipType
+
+-it returns a list of all distinct node labels with the relationship types associated . 
+Number : 10
+
+
+-----Query 5: -----
+MATCH (n)
+RETURN labels(n) AS Label, COUNT(n) AS NumberOfNodes
+-it counts how many nodes there are for each label
+Number: 9";https://drive.google.com/open?id=18jmJzyPd0kQO8aAM5vOSGwxwHR_0lYFq;"MATCH (p:Pangenome)
+OPTIONAL MATCH (p)-[:IS_IN_PANGENOME]->(g:Gene)
+WITH p, COLLECT(g) AS associatedGenes
+RETURN p AS Pangenome, associatedGenes, SIZE(associatedGenes)
+
+2 pangenome and 0 associations";"MATCH (p:Pangenome)
+OPTIONAL MATCH (p)-[:IS_IN_PANGENOME]->(s:Spot)
+RETURN p, COLLECT(s) AS associated_spots
+
+2 pangenome and 0 associations";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pang, collect(DISTINCT m.name) AS Modules      2 answers;MATCH (f1:Family)-[:IS_IN_PANGENOME]->(p1:Pangenome),        (f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE f1 <> f2 AND EXISTS(f1.annotation) AND EXISTS(f2.annotation) MATCH (f1)-[s:IS_SIMILAR]->(f2) WHERE s.identity >= 0.8 RETURN f1.name AS Family1, f2.name AS Family2           8 answers;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]->(m:Module)<-[:IS_IN_MODULE]-(neighborFam:Family) WHERE EXISTS(f.annotation) RETURN p AS Pangenome, COLLECT(DISTINCT f) AS AnnotatedFamilies, COLLECT(DISTINCT neighborFam) AS NeighborFamilies     2 pangeome and for each pangenome;;;;;
+student-10;Accept;Python, Java;4;3;MongoDB;2;SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS label
+
+-The MATCH clause is to traverse all nodes and the RETURN clause with DISTINCT to obtain unique node labels. 
+
+- It returns 9 answers.";"MATCH ()-[rel]->()
+RETURN DISTINCT type(rel) AS relationship_type
+
+-By using the MATCH clause to traverse relationships and the RETURN clause with DISTINCT and type(rel), it facilitates an examination of the variety of interactions between nodes.
+
+-It returns 10 answers.";"MATCH (n)
+UNWIND labels(n) AS label
+WITH label, n
+RETURN DISTINCT label, keys(n) AS node_properties
+
+-The query examine each node's distinct labels and associated properties. We utilize the UNWIND clause to access labels, and then we combine them with the node's keys,
+
+-It returns 9 labels, each one has a set of properties. So, 18 records as an ouptut.";MATCH ()-[rel]->() RETURN DISTINCT type(rel) AS relationship_type, properties(rel) AS relationship_properties;"Explore Node Label Co-occurrence:
+
+MATCH (n1)-[:IS_IN_FAMILY]->(n2)
+RETURN DISTINCT labels(n1) AS label1, labels(n2) AS label2, COUNT(*) AS
+cooccurrence_count
+
+-This query investigates co-occurrence patterns of node labels by counting connections
+between nodes.
+
+-Answer :
+label1 label2 cooccurrence_count
+[""Gene""] [""Family""] 1696342
+
+
+
+Identify Common Neighbors Between Nodes:
+
+MATCH (a)-[:IS_IN_FAMILY]-(b)-[:NEIGHBOR]-(c)
+WHERE a <> c
+RETURN a, b, c
+
+-By examining common neighbors between nodes in an interaction relationship, this query
+helps reveal patterns of shared associations and provides insights into the structure of the
+genomic network.";https://drive.google.com/open?id=1sK6mHPDZH-Yv_dcJxbcPBq3IOxFHGTsL;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(g.name) AS genes, COUNT(g) AS GeneCount
+
+Answers :
+I have 2 records, each one contain  651827         1044515: 
+""Enterobacter.cloacae"" with gene names as ["""", """", """", """", """", """", """", """", """", """", """", """", """", etc] and ""Acinetobacter.baumannii"" with gene names as [""ribB"", ""ribB"", ""ribB"", ""ribB"", ""ribB"", ""ribB"", ""ribB"", ""ribB"", etc]";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots, COUNT(s) AS SpotCount
+
+Answers :
+I have the same 2 records, each one contain 55264     238655 :
+""Enterobacter.cloacae"" with spot names as [""223"", ""223"", ""223"", ""223"", ""223"", ""223"", ""223"", ""223"", ""223"",etc] and 
+""Acinetobacter.baumannii"" with spot names as [""168"", ""168"", ""168"", ""168"", ""311"", ""311"", ""311"", ""311"", ""311"", ""311"", etc]";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[rel:IS_SIMILAR]->(f2:Family)-[:IS_IN_MODULE]->(m:Module) WHERE f1 <> f2 AND rel.identity >= 0.8  RETURN p.name AS Pangenome, COLLECT(DISTINCT m.name) AS Modules, COUNT (m) as ModuleCount   Answers : 2 records, each one containts 8 and 7 :   ""Acinetobacter.baumannii""	[422, 40, 72, 172, 29, 412, 8] ; ""Enterobacter.cloacae""	[215, 354, 293, 255, 235, 178, 113]";"MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8 RETURN p1.name AS Pangenome1, p2.name AS Pangenome2, COLLECT(DISTINCT f1.annotation), COLLECT(DISTINCT f2.annotation)       Answers: 2 records : Pangenome1	Pangenome2	COLLECT(DISTINCT f1.annotation)	COLLECT(DISTINCT f2.annotation) ""Acinetobacter.baumannii""	""Enterobacter.cloacae""	[""TEM-1"", ""tet(A)"", ""OXA-2"", ""sul1""]	[""TEM-1"", ""tet(A)"", ""OXA-2"", ""sul1""] ""Enterobacter.cloacae""	""Acinetobacter.baumannii""	[""CTX-M-15"", ""AAC(3)-IId"", ""aadA16""]	[""CTX-M-15"", ""AAC(3)-IId"", ""aadA11""]";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(neighborhood) RETURN p.name AS Pangenome, COLLECT(DISTINCT neighborhood.annotation) AS Neighborhood    Answers : 2 records : ""Enterobacter.cloacae""	[""MCR-9.1"", ""adeF"", ""QnrA1"", ""mphA"", ""QnrB4"", ""tet(B)"", ""baeR"", ""baeS"", ""aadA"", etc] ; ""Acinetobacter.baumannii""	[""NDM-1"", ""OXA-23"", ""ADC-76"", ""OXA-66"", ""LpsB"", ""OXA-164"", etc]";;;;;
+student-11;Accept;python, C++;1;1;Other;1;;"MATCH (n)
+RETURN DISTINCT LABELS(n) AS nodeLabels
+";"MATCH ()-[r]->()
+RETURN DISTINCT TYPE(r) AS relationshipTypes
+";"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabel, properties(n) AS nodeProperties
+";MATCH ()-[r]->() RETURN DISTINCT TYPE(r) AS relationshipType, properties(r) AS relationshipProperties;"MATCH ()-[r]->()
+RETURN DISTINCT TYPE(r) AS relationshipType, properties(r) AS relationshipProperties
+";https://drive.google.com/open?id=1XfQEtk-YinvUqBP8FJN-l6oEJ6l49LXd;"match (g:Gene)-->(f:Family)-->(p:Pangenome)
+with p, collect(distinct g.name) as t
+return p.name, t
+
+2 answers";"match (g:Gene)-->(f:Family)-->(p:Pangenome)
+match (g:Gene)-->(r:RGP)-->(s:Spot)
+with p, collect(distinct s.name) as t
+return p.name, t
+
+answers: 2";MATCH (g:Gene)-->(f:Family)-->(p:Pangenome)                                         MATCH (g:Gene)-->(f:Family)-->(m:Module) WITH p, m RETURN p.name, COLLECT(DISTINCT m.name) AS modules LIMIT 8;"MATCH (g1:Gene)-->(f1:Family)-->(p:Pangenome) MATCH (g2:Gene)-->(f2:Family)-->(p:Pangenome) WHERE f1 <> f2 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL WITH f1, f2, COLLECT(DISTINCT g1.name) AS genes1, COLLECT(DISTINCT g2.name) AS genes2 WITH f1, f2, genes1, genes2, SIZE([gene IN genes1 WHERE gene IN genes2]) AS commonGenes, SIZE(genes1) AS totalGenes1, SIZE(genes2) AS totalGenes2 WITH f1, f2, commonGenes, totalGenes1, totalGenes2, (commonGenes * 1.0) / (totalGenes1 + totalGenes2 - commonGenes) AS similarity WHERE similarity > 0.8 RETURN f1.name, f2.name, similarity;            Answers:1000";"MATCH (g:Gene)-->(f:Family)-->(p:Pangenome) WHERE f.annotation IS NOT NULL WITH p, COLLECT(DISTINCT f) AS annotatedFamilies RETURN p.name, annotatedFamilies, SIZE(annotatedFamilies) AS numberOfFamiliesWithAnnotations;";;;;;
+student-12;Accept;Python;4;3;Apache Cassandra, MongoDB, Other;4;SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabels
+9 results
+( this query returns a list of labels for each node, where each list can contain multiple labels)";"MATCH ()-[r]->() RETURN DISTINCT type(r) AS relationshipType
+10 results
+(The query fetches every unique relationship type in a Neo4j database, ensuring no duplicates in the result.)";"MATCH (n)
+WITH DISTINCT labels(n) AS NodeLabels, keys(n) AS Properties
+RETURN NodeLabels, collect(DISTINCT Properties) AS PropertySet
+9 results
+(retrieves each unique combination of node labels and their associated properties. It groups nodes by their label combinations and collects the distinct properties for these groups.)";MATCH ()-[r]->() WITH type(r) AS RelationshipType, keys(r) AS Properties RETURN DISTINCT RelationshipType, collect(DISTINCT Properties) AS PropertySet / 10 results / fetches each unique relationship typeand collects their distinct properties. It ensures no duplicate types in the result and aggregates unique properties for each relationship type.;"MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS Count
+it returns 10 records
+(This query shows the types of relationships between different pairs of node labels.)
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS Count
+it returns 10 records
+(This query provides a count of how many relationships there are of each type.)
+MATCH (n)
+RETURN labels(n) AS NodeLabel, count(n) AS Count
+it returns 9 records
+(This query counts how many nodes there are for each label.)";https://drive.google.com/open?id=1PbwWZpQ1PfNnS2a1ujeRV6BThszBJUgu;;;;;;;;;;
+student-13;Accept;Python, R, Java, SQL, MySQL;3;2;MongoDB;1;SQL/PGQ;"MATCH (n) RETURN DISTINCT LABELS(n) AS NodeLabels  (it returned 9 records)
+The inclusion of DISTINCT ensures that each label appears only once in the result set";"MATCH ()-[r]->()
+RETURN DISTINCT TYPE(r) AS RelationshipTypes (returned 10 records)
+This query matches all relationships ()-[r]->() in the graph, retrieves their types using the TYPE function, and returns the distinct set of relationship types.";"MATCH (n)
+RETURN labels(n) AS NodeLabel, COLLECT(DISTINCT keys(n)) AS Properties
+(it returned 9 records)
+This query matches all nodes in the graph, retrieves their labels, and collects the distinct sets of properties for each node";MATCH ()-[r]->() RETURN DISTINCT TYPE(r) AS RelationshipType, COLLECT(DISTINCT PROPERTIES(r)) AS RelationshipProperties  (it returned 10 records)  This query matches all relationships ()-[r]->() in the graph, retrieves their types using the TYPE function, and collects the distinct sets of properties for each relationship using PROPERTIES(r);"This query shows relationships between nodes, including the labels of the start and end nodes: 
+MATCH (n1)-[r]->(n2)
+RETURN DISTINCT labels(n1) AS StartNodeLabels, TYPE(r) AS RelationshipType, labels(n2) AS EndNodeLabels
+LIMIT 20
+
+find the node with the highest connectivity: 
+MATCH (n)
+RETURN n, size((n)-[]-()) AS Degree
+ORDER BY Degree DESC
+LIMIT 1 (highest degree 25533, node ""partition"")
+
+Check for Nodes without Relationships: 
+MATCH (n)
+WHERE NOT ()--(n)
+RETURN n
+LIMIT 5 (all nodes are connected)";https://drive.google.com/open?id=1YrMkidZ4lCgz3clDbVdQinzj3RUNATTW;"MATCH (pangenome:Pangenome)
+OPTIONAL MATCH (pangenome)-[:IS_IN_PANGENOME]->(gene:Gene)
+WITH pangenome, COLLECT(gene) AS associatedGenes
+RETURN pangenome, associatedGenes, SIZE(associatedGenes) AS numberOfResults;
+
+(The query results in 2 records; there are only two pangeome and none of them has an associated gene)";"MATCH (pangenome:Pangenome)
+OPTIONAL MATCH (pangenome)-[:IS_IN_PANGENOME]->(spot:Spot)
+RETURN pangenome, COLLECT(spot) AS associatedSpots; (none of the two pangenomes are associated with any spots either)";MATCH (pangenome:Pangenome)-[:CONTAINS]->(module:Module)-[:HAS]->(family1:Family)-[rel:IS_SIMILAR {identity: 0.8}]-(family2:Family)<-[:HAS]-(module) RETURN pangenome, module, COLLECT(DISTINCT family1) AS associatedFamilies, COUNT(DISTINCT module) AS numberOfModules;MATCH (family1:Family)-[rel:IS_SIMILAR {identity: 0.8}]-(family2:Family) WHERE EXISTS(family1.annotation) AND EXISTS(family2.annotation) RETURN family1, family2, rel    ( I got 16 records);"MATCH (pangenome:Pangenome)-[:IS_IN_PANGENOME]->(family:GeneFamily)-[:CONTAINS]->(gene:Gene)-[:HAS_ANNOTATION]->(annotation) RETURN pangenome, family, COLLECT(DISTINCT gene) AS genes, COLLECT(DISTINCT annotation) AS annotations, COUNT(*) AS numberOfResults;";;;;;
+student-14;Accept;python,java;3;2;Apache Cassandra, MongoDB, Other;3;SQL/PGQ, SPARQL;"The query that returns the set of all distinct node labels is :
+
+MATCH (n)
+RETURN DISTINCT labels(n) AS DistinctNLabels
+
+this query returns 9 answers
+Explanation: The query identifies  all unique node labels, utilizing MATCH to locate every node and RETURN DISTINCT labels(n) to precisely list each distinct label.";"The query that returns the set of all distinct relationship type is :
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS DistinctRelationshipTypes
+
+this query returns 10 answers
+
+Explanation : 
+This query uses MATCH ()-[r]-() to match all relationships in the database, regardless of the nodes they connect. Then, RETURN DISTINCT type(r) is used to return each unique type of relationship.";"The query that eturns each distinct node label together with its corresponding set of properties: 
+
+MATCH (n)
+RETURN DISTINCT labels(n) AS Label, keys(n) AS Properties
+
+number of answers :18
+
+Explanation : This query uses MATCH (n) to match all nodes in the database. Then, it uses RETURN DISTINCT labels(n) AS Label to list each unique label of these nodes. The keys(n) AS Properties part of the query extracts the set of property keys associated with each label.";MATCH ()-[r]->() RETURN DISTINCT type(r) AS RelationshipType, keys(r) AS Properties                           Number of answers :10      Explanation : This query operates by using MATCH ()-[r]-() to find all relationships in the database, irrespective of the nodes they connect. Then, RETURN DISTINCT type(r) AS RelationshipType is employed to list each unique type of relationship. The keys(r) AS Properties part extracts the set of property keys associated with each relationship type.;"Query 1: 
+
+MATCH (n)
+RETURN DISTINCT labels(n) AS Label, COUNT(n) AS Count
+
+Number of answers: 9 
+Explanation:This query returns the count of nodes for each label, helping to understand the distribution of different types of nodes.
+
+
+Query 2: 
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS RelationshipT, COUNT(r) AS Count
+
+Number of answers : 10
+Explanation : This provides the count of relationships for each type, offering insights into how different nodes are interconnected.
+
+
+Query 3:
+
+MATCH (n)-[r]->(m)
+RETURN DISTINCT labels(n) AS StartLabel, type(r) AS Relationship, labels(m) AS EndLabel
+
+Number of answers: 10
+Explanation : This query returns the types of relationships that exist between different node labels, providing a high-level overview of the schema's structure. 
+
+
+
+Query 4: 
+
+MATCH (n)
+RETURN labels(n) AS Label, avg(size(keys(n))) AS AvgProperties
+
+Number of answers: 9
+Explanation :This query calculates the average number of properties for nodes under each label, useful for understanding the complexity of different node types.";https://drive.google.com/open?id=1f6Qhp3VsrDdT7OVbAoPGVS5rA_uS6CPW;"MATCH (pangenome:Pangenome)
+OPTIONAL MATCH (pangenome)-[:IS_IN_PANGENOME]->(gene:Gene)
+RETURN pangenome, COLLECT(gene) AS associatedGenes
+
+
+Number of answers : 2 pangenome with 0 association";"MATCH (p:Pangenome)
+OPTIONAL MATCH (p)-[:IS_IN_PANGENOME]->(s:Spot)
+RETURN p, COLLECT(s) AS associated_spots
+Number of answers :  2 pangenome with 0 association";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pang, collect(DISTINCT m.name) AS Modules  number of answers : 2 pangenome with 7 modules for each of them;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE EXISTS(f1.annotation) AND EXISTS(f2.annotation) AND s.identity >= 0.8 RETURN p1.name AS Pangenome1, p2.name AS Pangenome2, COLLECT(DISTINCT f1.name) AS Family1, COLLECT(DISTINCT f2.name) AS Family2;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_SIMILAR]-(neighborFam:Family) WHERE EXISTS(f.annotation) RETURN p AS Pangenome, COLLECT(DISTINCT f) AS AnnotatedFamilies, COLLECT(DISTINCT neighborFam) AS NeighborFamilies    number of answers : 2 pangenomes for each of them the neighborhood of its gene families containing annotations.;;;;;
+student-15;Accept;java, python, c, c++, javascript, c#, go, dart, sql, kotlin, ... ;3;3;Apache Cassandra, MongoDB, Redis, Other;2;OpenCypher, GraphQL, SQL/PGQ, SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabels, COUNT(DISTINCT labels(n)) AS Count
+
+it return 9 records 
+The query is simultaneously providing both the unique label types and their total count for database schema analysis.";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS RelationshipType, COUNT(DISTINCT type(r)) AS Count
+
+it returns 10 records
+The query is crafted to enumerate and tally all unique relationship types in the Neo4j graph, providing insights into the variety and scope of connections between nodes.";"MATCH (n)
+WITH DISTINCT labels(n) AS Label, keys(n) AS Properties
+RETURN Label, collect(DISTINCT Properties) AS PropertiesSet
+
+it returns 9 records
+The query identifies each unique combination of node labels in the database and gathers the corresponding property keys for these labels";MATCH ()-[r]->() WITH DISTINCT type(r) AS RelationshipType, keys(r) AS properties RETURN RelationshipType, properties  it returns 10 records The query identify and enumerate distinct relationship types in the Neo4j database, along with their respective properties, providing a detailed view of the graph's relational structure.;"MATCH (n:RGP)
+UNWIND KEYS(n) AS property_key
+RETURN DISTINCT property_key
+
+it returns 7 properties of RGP
+This query will return all distinct property keys associated with nodes having the specified label. 
+
+MATCH (n)-[r]->(m)
+RETURN DISTINCT type(r) AS RelationshipType, labels(n) AS StartNodeLabel, labels(m) AS EndNodeLabel
+
+This query shows the different types of relationships and the labels of the nodes they connect. 
+
+MATCH ()-[r]-()
+RETURN type(r) as RelationshipType, count(*) as Count
+ORDER BY Count DESC
+
+it returns 10 rows records with RelationshipType and Count values
+
+This query provides a distribution of all relationship types in the database, showing how many times each type occurs.
+
+MATCH (n)
+UNWIND keys(n) AS Key
+RETURN Key, count(*) AS Frequency
+ORDER BY Frequency DESC
+
+It returns 17 records 
+This query shows all the properties keys of nodes and how often they appear, giving an insight into which properties are most common across nodes.";https://drive.google.com/open?id=1fosTcnkXjT-7EMF4_O9BzaH0fEI8JR2_;;;;;;;;;;
+student-16;Accept;;3;2;Other;2;SQL/PGQ;"CALL db.labels()
+This query will return a table with a single column called label containing all distinct node labels in your database.
+
+As for the number of answers, it depends on the number of distinct node labels in your Neo4j database. The result will include one row for each distinct label, so the number of rows in the result set is equal to the number of distinct labels in your database.";"CALL db.relationshipTypes()
+This query will return a table with a single column called relationshipType containing all distinct relationship types in your database.
+
+As for the number of answers, it depends on the number of distinct relationship types in your Neo4j database. The result will include one row for each distinct relationship type, so the number of rows in the result set is equal to the number of distinct relationship types in your database.";"CALL db.schema.nodeTypeProperties() YIELD nodeLabels, properties
+RETURN nodeLabels, properties
+This query uses the CALL db.schema.nodeTypeProperties() procedure to get information about node types and their properties. The YIELD clause is used to extract the nodeLabels and properties columns. The result will include each distinct node label along with the set of properties associated with it.
+
+The number of answers returned by this query depends on the number of distinct node labels in your database. There will be one row for each node label, and the result set size corresponds to the number of distinct node labels.";MATCH ()-[r]->() WITH type(r) AS relationshipType, keys(r) AS relationshipProperties RETURN relationshipType, relationshipProperties The number of answers returned by this query depends on the number of distinct relationship types in your database. There will be one row for each relationship type, and the result set size corresponds to the number of distinct relationship types. Keep in mind that this query assumes relationships have different properties, and it might return multiple rows for the same relationship type if different instances have different sets of properties.;"CALL db.labels()
+YIELD label, count
+RETURN label, count
+This query returns each distinct node label along with the count of nodes having that label. The result set will have one row for each distinct node label, and the count indicates how many nodes have that label
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS relationshipType
+This query retrieves all distinct relationship types in the dataset. The result set will have one row for each distinct relationship type.
+
+CALL db.constraints
+YIELD name, description, type, properties
+RETURN name, description, type, properties
+This query returns information about unique constraints defined in the database, including the constraint name, description, type, and the properties that are constrained. The result set will include one row for each unique constraint in the database.";https://drive.google.com/open?id=17EfORjXh1Hv7bwBUQIhts0YE1OEacx8J;"MATCH (g:Gene)-[k:IS_IN_FAMILY]->(f:Family)-->(p:Pangenome)
+MATCH (g:Gene)-->(r:RGP)-->(s:Spot)
+WITH p, collect(distinct s.name) as t
+RETURN p.name, t;
+2 answers";"MATCH (g:Gene)-->(f:Family)-->(p:Pangenome)
+MATCH (g:Gene)-->(r:RGP)-->(s:Spot)
+WITH p, COLLECT(DISTINCT s.name) AS t
+RETURN p.name, t
+2 answers";"MATCH (a)-[r]->(b) WHERE r.value > 80 WITH r.pangenome AS pangenome, a.module AS module, COLLECT([a, b]) AS pairs WHERE SIZE(pairs) >= 2 UNWIND pairs AS pair RETURN pangenome, module, pair[0] AS gene_family1, pair[1] AS gene_family2;";MATCH (a)-[r]->(b) WHERE r.value > 80 AND NOT EXISTS(a.annotation) AND NOT EXISTS(b.annotation) RETURN COUNT(DISTINCT a) AS number_of_pairs         1 answer;"MATCH (a)-[r]->(b) WHERE EXISTS(a.annotation) AND EXISTS(b.annotation) WITH r.pangenome AS pangenome, COLLECT([a, b]) AS pairs UNWIND pairs AS pair RETURN   pangenome,   pair[0] AS gene_family1,   pair[0].annotation AS annotation1,   pair[1] AS gene_family2,   pair[1].annotation AS annotation2;     2 answer";;;;;
+student-17;Accept;python,C++,C#, SQL;2;2;Other;2;SQL/PGQ;"MATCH (n) 
+RETURN DISTINCT labels(n) AS NodeLabels 
+it returns 9 records
+ ( this query returns a list of labels for each node, where each list can contain multiple labels)";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS RelationshipTypes
+it returns 10 records
+(The query fetches every unique relationship type in a Neo4j database, ensuring no duplicates in the result.)";"MATCH (n)
+WITH DISTINCT labels(n) AS NodeLabels, keys(n) AS Properties
+RETURN NodeLabels, collect(DISTINCT Properties) AS PropertySet
+it returns 9 records
+retrieves each unique combination of node labels and their associated properties. It groups nodes by their label combinations and collects the distinct properties for these groups.";MATCH ()-[r]->() WITH type(r) AS RelationshipType, keys(r) AS Properties RETURN DISTINCT RelationshipType, collect(DISTINCT Properties) AS PropertySet / returns 10 records:  fetches each unique relationship typeand collects their distinct properties. It ensures no duplicate types in the result and aggregates unique properties for each relationship type.;"MATCH (n)
+RETURN labels(n) AS NodeLabel, count(n) AS Count
+it returns 9 records
+(This query counts how many nodes there are for each label.)
+
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS Count
+it returns 10 records
+(This query provides a count of how many relationships there are of each type.)
+
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS Count
+it returns 10 records
+(This query shows the types of relationships between different pairs of node labels.)
+
+MATCH (a)-[r]->(b)
+RETURN DISTINCT labels(a) AS StartNodeLabels, type(r) AS RelationshipType, labels(b) AS EndNodeLabels;
+ it returns 10 records 
+(fetches unique pairs of node labels and their connecting relationship types in a Neo4j database, ensuring distinct combinations)";https://drive.google.com/open?id=1kEGi29pH_wOxpPSFWlB0xarhtHVot_3i;;;;;;;;;;
+student-18;Accept;python, java, javascript;3;3;MongoDB, Other;1;SPARQL;"MATCH (n)
+WITH n, keys(n) AS properties
+ORDER BY size(properties) DESC
+LIMIT 1
+RETURN n, properties;
+
+Number of returned values:";"CALL db.relationshipTypes()
+YIELD relationshipType
+RETURN DISTINCT relationshipType, COUNT(*) AS count;
+";"MATCH (n)
+WITH DISTINCT labels(n) AS nodeLabels, properties(n) AS nodeProperties
+RETURN nodeLabels, nodeProperties, COUNT(*) AS count;
+";"MATCH ()-[r]->() WITH TYPE(r) AS relationshipType, PROPERTIES(r) AS relationshipProperties RETURN DISTINCT relationshipType, relationshipProperties, COUNT(*) AS count;";"CALL db.labels()
+YIELD label
+RETURN DISTINCT label, COUNT(*) AS count;
+
+CALL db.relationshipTypes()
+YIELD relationshipType
+RETURN DISTINCT relationshipType, COUNT(*) AS count;
+
+MATCH (n:YourLabel)
+UNWIND keys(n) AS property
+RETURN DISTINCT property, COUNT(*) AS count;
+
+MATCH ()-[r:YourRelationshipType]->()
+UNWIND keys(r) AS property
+RETURN DISTINCT property, COUNT(*) AS count;
+
+MATCH (n)
+WITH n, keys(n) AS properties
+ORDER BY size(properties) DESC
+LIMIT 1
+RETURN n, properties;";https://drive.google.com/open?id=1sLEjVWXsRChxO3k47Nag1Zc6AW_gaMi0;"Q6: 
+MATCH (g:Gene)-->(fFamily)-->(p:Pangenome)
+WITH p, COLLECT(DISTINCT g.name) AS a
+RETURN DISTINCT p.name, a
+
+results: 2. Note that due to my computer limitations I was obliged to not test the rest of the queries!";"Q7: MATCH (p:Pangenome)<--(:Family)<--(:Gene)-->(:RGP)-->(s:Spot)
+WITH p, COLLECT(DISTINCT s.name) AS a
+RETURN DISTINCT p.name, a
+
+number of returned: 2";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[:IS_IN_MODULE]->(m:Module)<-[:IS_IN_MODULE]-(f2:Family) WHERE f1.id <> f2.id AND size(([:CONTAINS]->(g1:Gene))--(f1)<-[:IS_IN_FAMILY]) * 0.80 < size(([:CONTAINS]->(g2:Gene))--(f2)<-[:IS_IN_FAMILY]) RETURN p, m, COUNT(*) AS total_results;MATCH (f1:Family), (f2:Family) WHERE f1.pangenomeId <> f2.pangenomeId AND f1.annotation <> '' AND f2.annotation <> '' AND       size((f1)-[:CONTAINS]->(g1:Gene)) * 0.80 < size((f2)-[:CONTAINS]->(g2:Gene)) RETURN f1 AS family1, f2 AS family2, COUNT(*) AS total_results;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) WHERE f.annotation <> '' WITH p, f MATCH (f)-[:CONTAINS]->(g:Gene)<-[:CONTAINS]-(f2:Family) WITH p, f, collect(f2) AS neighbors RETURN p, f.annotation AS annotation, neighbors, COUNT(*) AS total_results;;;;;
+student-19;Accept;C , C++ , C# , Java , Js , Php ;5;4;MongoDB;3;OpenCypher, GraphQL, SPARQL;"CALL db.labels() YIELD label RETURN DISTINCT label;
+It returns 9 values";"CALL db.relationshipTypes() YIELD relationshipType RETURN DISTINCT relationshipType;
+It returns 10 values";"MATCH (n) UNWIND labels(n) AS label WITH DISTINCT label MATCH (n) WHERE label IN labels(n) RETURN label, COLLECT(DISTINCT keys(n)) AS Properties
+It returns obviously 9 results but each with different number of properties";MATCH ()-[r]->() WITH type(r) AS RelationshipType, r RETURN DISTINCT RelationshipType, keys(r) AS Properties : It returns obviously 10 answers each with different number of properties;"*Count nodes for each label: CALL db.labels() YIELD label MATCH (n:Family) WHERE labels(n) = [label] RETURN label, count(n) AS NodeCount; it will return 1 value with it's corresponding number of lables
+*Retrieve all relationships between nodes of a specific type: MATCH (a)-[r:NEIGHBOR]->(b) RETURN DISTINCT type(r) AS RelationshipType, labels(a) AS StartLabel, labels(b) AS EndLabel, keys(r) AS RelationshipProperties; It returns 1 result
+*Count nodes of each label connected by a specific relationship: MATCH (a)-[:NEIGHBOR]->(b) RETURN labels(a) AS StartLabel, labels(b) AS EndLabel, count(*) AS Count; It returns 1 result";https://drive.google.com/open?id=15sT9g6PZ_A4FArlSNU-eOIkkoLhb2I7d;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN DISTINCT p.name AS Pangenome, collect(DISTINCT g.name) AS Genes, COUNT(DISTINCT g) AS GenesCount
+it returns two answers the first one with 1 gene and the second with a high number of genes";"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome),
+      (g)-[:IS_IN_RGP]->(rgp:RGP)-[:IS_IN_SPOT]->(s:Spot) RETURN DISTINCT p, COLLECT(DISTINCT s) AS associated_spots, COUNT(DISTINCT p) AS num_pangenomes, count(DISTINCT s) AS num_spots;
+We have for the first pangenome 298 spots 
+The second pangenome 364 spots
+Total of 662 results";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules || It returns 2 answers of 2 pangenomes with 7 modules each;MATCH (f1:Family)-[s1:IS_SIMILAR]-()-[:IS_IN_PANGENOME]->(p1:Pangenome),       (f2:Family)-[s2:IS_SIMILAR]-()-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE s1.identity >= 0.8 AND s2.identity >= 0.8   AND EXISTS(f1.annotation) AND EXISTS(f2.annotation) RETURN DISTINCT f1.name, f2.name || it returns 297 results;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood, COUNT(DISTINCT n.annotation) | | It returns two answers for the two pangenome first with 76 result and the second with 69 results;;;;;
+student-20;Accept;java,python,php,js;4;3;Apache Cassandra, MongoDB;4;SQL/PGQ, SPARQL;"--> Query : 
+MATCH (n)
+WITH DISTINCT labels(n) AS NodeLabels
+RETURN count(NodeLabels) AS NumberOfDistinctLabels
+
+--> Answer : 9 
+
+--> Explanation : 
+Identifies the variety of entities in the dataset by listing all unique node labels, essential for understanding its basic structure.";"--> Query:
+MATCH ()-[r]->()
+WITH DISTINCT type(r) AS RelationshipTypes
+RETURN count(RelationshipTypes) AS NumberOfDistinctRelationshipTypes
+
+-->Answer : 10 
+
+-->Explanation: 
+Reveals the types of interactions between entities by enumerating distinct relationship types, crucial for understanding dataset interconnections.";"-->Query: 
+MATCH (n)
+WITH DISTINCT labels(n) AS NodeLabels, collect(DISTINCT keys(n)) AS Properties
+RETURN COUNT(DISTINCT {NodeLabels: NodeLabels, Properties: Properties}) AS NumberOfDistinctLabelPropertySets 
+
+--> Answer : 9 
+--> Explanation: 
+This query is designed to determine the diversity and complexity of the genomic dataset by counting the unique combinations of node types and their associated properties.";--> Query: MATCH ()-[r]->() WITH DISTINCT type(r) AS RelationshipType, keys(r) AS Properties RETURN count(RelationshipType) AS NumberOfDistinctRelationshipTypePropertySets          --> answer : 10          --> Explanation :  the purpose of this query is to analyze the variety and attributes of relationships in the genomic dataset. It counts the unique combinations of relationship types and their associated properties.;"--> cypher query 1 : (Count of Nodes per Label)
+
+MATCH (n)
+RETURN labels(n) AS NodeLabels, count(n) AS NumberOfNodes
+
+--> Explanation : 
+ Identifies the variety of entities in the dataset by listing all unique node labels, essential for understanding its basic structure.
+
+-->Result:
+thNodeLabels	NumberOfNodes
+[""Gene""]	1696342
+[""Family""]	37353
+[""Module""]	1135
+[""RGP""]	15847
+[""Spot""]	656
+[""Contig""]	9519
+[""Genome""]	421
+[""Pangenome""]	2
+[""Partition""]	3e numbNodeLabels=NumberOfNode
+
+--> cypher query 2 : Count of Relationships per Type
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS NumberOfRelationships
+
+-->Explanation : 
+This query identifies and counts the occurrences of each type of relationship in the genomic dataset, providing insights into the frequency and distribution of interactions between entities. It's essential for understanding the most common and significant relationships within the genomic network.
+
+--> Result : 
+RelationshipType	NumberOfRelationships
+""IS_IN_CONTIG""	1696342
+""IS_IN_FAMILY""	1696342
+""IS_IN_RGP""	360484
+""HAS_PARTITION""	37353
+""IS_IN_PANGENOME""	37353
+""NEIGHBOR""	62417
+""IS_SIMILAR""	6672
+""IS_IN_MODULE""	7194
+""IS_IN_SPOT""	12962
+""IS_IN_GENOME""	9519
+
+
+--> cypher query 3 : 
+MATCH (n)
+RETURN labels(n) AS NodeLabels, avg(size(keys(n))) AS AvgPropertiesPerNode
+
+--> Explanation : 
+This query calculates the average number of properties for each node type in the genomic dataset. It's valuable for assessing the complexity and depth of information stored in different types of genomic entities, aiding in understanding data richness and variability.
+
+--> Result: 
+NodeLabels	AvgPropertiesPerNode
+[""Gene""]	9.0
+[""Family""]	2.0054078654994583
+[""Module""]	2.0
+[""RGP""]	7.0
+[""Spot""]	2.0
+[""Contig""]	3.0
+[""Genome""]	2.0
+[""Pangenome""]	3.0
+[""Partition""]	3.0";https://drive.google.com/open?id=1Vsi5w49CirkJ1rOxKllbdIF_WvoFe4ei;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, collect(g.name) AS Genes
+
+
+Answer : 2
+
+
+We have for the first pangenome-> 298 spots 
+The second pangenome -> 364 spots
+Total : 662 results";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots
+
+
+Answer ->  2
+
+
+It return two answers of two pangenomes with 7 modules each";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules        Answer 2    It returns two answer for the two pangenome  the first with 76 result and the second with 69 results;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8  WITH p1 AS Pangenome1, p2 AS Pangenome2,       f1 AS Family1, f2 AS Family2,       r.identity AS Similarity,      COLLECT(DISTINCT f1.annotation) AS Annotations1,       COLLECT(DISTINCT f2.annotation) AS Annotations2  WHERE SIZE(Annotations1) > 0 AND SIZE(Annotations2) > 0  RETURN Pangenome1.name AS Pangenome1, Annotations1,         Pangenome2.name AS Pangenome2, Annotations2,         Similarity    257 results;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood   answer 2;;;;;
+student-21;Accept;Python;4;3;MongoDB;3;OpenCypher, GraphQL;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels, count(DISTINCT labels(n)) AS labelCount
+
+Answer : 9";"MATCH ()-[r]->()
+WITH DISTINCT type(r) AS relationship_type
+RETURN relationship_type, count(*) AS count
+
+Answe : 10";"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (n)
+WHERE label IN labels(n)
+RETURN label, COLLECT(DISTINCT keys(n)) AS Properties
+
+the result : 9";MATCH ()-[r]->() WITH type(r) AS RelationshipType, r RETURN DISTINCT RelationshipType, keys(r) AS Properties    ---  The answer is 10;"Count of Relationships per Type
+MATCH ()-[r]->()
+RETURN type(r) AS RelationshipType, count(r) AS NumberOfRelationships 
+
+the result : 5";https://drive.google.com/open?id=1M03ehD7GCY5g4QEtSyV7y0vp1jbe137T;;;;;;;;;;
+student-22;Accept;R, Python, Java, SQL;2;1;Other;3;SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabels
+Number of answer: 9 nodes";"MATCH ()-[r]->() RETURN DISTINCT type(r)AS RelationshipType, COUNT (DISTINCT type(r)) AS COUNT
+Number of answer : 10 relationship types";"MATCH (n) UNWIND labels(n) AS label RETURN DISTINCT label, keys (n) AS properties
+Number of answer: 13";If you want to retrieve properties associated with specific relationships, you would need to specify a relationship and its properties based on your dataset's structure.   MATCH (a)-[r:RELATIONSHIP_TYPE]->(b) RETURN DISTINCT type(r) AS relationshipType, keys(r) AS relationshipProperties;"We have known from the previous queries:
+- The set of all distinct node labels.
+- The set of all distinct relationship types
+- The distinct node label together with its corresponding set of properties. 
+
+To understand the underlying schema structure of the dataset, we need to know:
+1. List All Distinct Node Labels with Properties (DONE Q3)
+2. List All Distinct Relationship Types (DONE Q2)
+3. List Node Labels and Their Relationships
+4. Count of Nodes per Label 
+5. Count of Relationships per Relationship Type
+
+3. List Node Labels and Their Relationships:
+CALL db.labels() YIELD label
+MATCH (n:label)-[r]->()
+RETURN DISTINCT label, COLLECT(DISTINCT type(r)) AS relationshipTypes
+
+4. Count of Nodes per Label:
+CALL db.labels() YIELD label
+MATCH (n:label)
+RETURN DISTINCT label, COUNT(n) AS nodeCount
+
+5. Count of Relationships per Relationship Type
+CALL db.relationshipTypes() YIELD relationshipType
+MATCH ()-[r:relationshipType]->()
+RETURN DISTINCT relationshipType, COUNT(r) AS relationshipCount";https://drive.google.com/open?id=1WD407-aPzeIDuOx8k8jHu72z6d78kR83;"MATCH (p:Pangenome)-[:HAS_PARTITION]->(pa:Partition)-[:HAS_GENOME]->(g:Genome)-[:HAS_CONTIG]->(c:Contig)-[:HAS_GENE]->(ge:Gene)
+RETURN p.name AS Pangenome, collect(ge.name) AS Genes
+The number of answers is 0 records";"MATCH (p:Pangenome)-[:HAS_MODULE]->(:Module)-[:HAS_SPOT]->(s:Spot)
+RETURN p.name AS Pangenome, collect(s.identity) AS Spots
+The number of answers is 0 records";3/ MATCH (p:Pangenome)-[:HAS_MODULE]->(m:Module)-[:CONTAINS_FAMILY]->(f1:Family),        (m)-[:CONTAINS_FAMILY]->(f2:Family) WHERE f1 <> f2 AND f1.identity > 0.8 AND f2.identity > 0.8 RETURN p.name AS Pangenome, m.name AS Module    the number of answers is 0 records;MATCH (f1:Family)-[:PART_OF]->(:Contig)-[:PART_OF]->(:Genome)-[:PART_OF]->(p1:Pangenome),       (f2:Family)-[:PART_OF]->(:Contig)-[:PART_OF]->(:Genome)-[:PART_OF]->(p2:Pangenome),       (f1)-[r:IDENTITY_RELATIONSHIP]-(f2) WHERE p1 <> p2 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL        AND r.identity_percent > 0.8 RETURN f1.name AS Family1, f2.name AS Family2   the number of answers is 0 records.;MATCH (p:Pangenome)-[:HAS_MODULE]->(m:Module)-[:CONTAINS_FAMILY]->(f:Family) WHERE f.annotation IS NOT NULL RETURN p.name AS Pangenome, collect(DISTINCT f.name) AS Neighborhood   the number of answers is 0 records;;;;;
+student-23;Accept;Java, Python, C++;5;5;Apache Cassandra, MongoDB;3;SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS NodeLabels
+Number of answer: 9 nodes";"MATCH ()-[r]->() RETURN DISTINCT type(r)AS RelationshipType, COUNT (DISTINCT type(r)) AS COUNT
+Number of answer : 10 relationship types";"MATCH (n) UNWIND labels(n) AS label RETURN DISTINCT label, keys (n) AS properties
+Number of answer: 13";If you want to retrieve properties associated with specific relationships, you would need to specify a relationship and its properties based on your dataset's structure.    MATCH (a)-[r:RELATIONSHIP_TYPE]->(b)  RETURN DISTINCT type(r) AS relationshipType, keys(r) AS relationshipProperties;"We have known from the previous queries:
+- The set of all distinct node labels.
+- The set of all distinct relationship types
+- The distinct node label together with its corresponding set of properties. 
+
+To understand the underlying schema structure of the dataset, we need to know:
+1. List All Distinct Node Labels with Properties (DONE Q3)
+2. List All Distinct Relationship Types (DONE Q2)
+3. List Node Labels and Their Relationships
+4. Count of Nodes per Label 
+5. Count of Relationships per Relationship Type
+
+3. List Node Labels and Their Relationships:
+CALL db.labels() YIELD label
+MATCH (n:`label`)-[r]->()
+RETURN DISTINCT label, COLLECT(DISTINCT type(r)) AS relationshipTypes
+
+4. Count of Nodes per Label:
+CALL db.labels() YIELD label
+MATCH (n:`label`)
+RETURN DISTINCT label, COUNT(n) AS nodeCount
+
+5. Count of Relationships per Relationship Type
+CALL db.relationshipTypes() YIELD relationshipType
+MATCH ()-[r:`relationshipType`]->()
+RETURN DISTINCT relationshipType, COUNT(r) AS relationshipCount";https://drive.google.com/open?id=1I4AvSE-TTgrzXKOvZ8M2R6MgsrcYjlW5;"1-
+MATCH (p:Pangenome)-[:HAS_PARTITION]->(pa:Partition)-[:HAS_GENOME]->(g:Genome)-[:HAS_CONTIG]->(c:Contig)-[:HAS_GENE]->(ge:Gene)
+RETURN p.name AS Pangenome, collect(ge.name) AS Genes
+
+No return";"MATCH (p:Pangenome)-->(s:Spot)
+RETURN p.name AS Pangenome, collect(s.name) AS Spots
+
+
+No return";MATCH (p:Pangenome)-[:HAS_MODULE]->(m:Module)-[:HAS_FAMILY]->(f1:Family),       (f1)-[r:SIMILARITY]-(f2:Family) WHERE r.identity > 0.8 AND f1 <> f2 AND (m)-[:HAS_FAMILY]->(f2) WITH p, m, f1, f2 MATCH (m)-[:HAS_FAMILY]->(f:Family) WITH p, m, collect(f.name) AS Families RETURN p.name AS Pangenome, m.name AS Module, Families // No return;MATCH (f1:Family)-[:PART_OF]->(:Contig)-[:PART_OF]->(:Genome)-[:PART_OF]->(p1:Pangenome),       (f2:Family)-[:PART_OF]->(:Contig)-[:PART_OF]->(:Genome)-[:PART_OF]->(p2:Pangenome),       (f1)-[r:IDENTITY_RELATIONSHIP]-(f2) WHERE p1 <> p2 AND f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL        AND r.identity_percent > 0.8 RETURN f1.name AS Family1, f2.name AS Family2 // 0 return;"MATCH (p:Pangenome)-[*]-(f:Family) WHERE EXISTS(f.annotation) AND f.annotation <> """" RETURN p.name AS Pangenome, collect(f.name) AS FamiliesWithAnnotations // No return";;;;;
+student-24;Accept;Python,java,solidity,javascript;4;3;MongoDB;3;SQL/PGQ, SPARQL;"CALL db.labels()
+YIELD label
+RETURN DISTINCT label, COUNT(label) AS count";"CALL db.relationshipTypes()
+YIELD relationshipType
+RETURN DISTINCT relationshipType, COUNT(relationshipType) AS count";"MATCH (n)
+WITH DISTINCT labels(n) AS labels, keys(n) AS properties
+RETURN labels, properties
+";MATCH ()-[r]->() UNWIND keys(r) AS property RETURN DISTINCT TYPE(r) AS relationshipType, COLLECT(DISTINCT property) AS properties;"MATCH (n)
+WITH DISTINCT keys(n) AS properties
+UNWIND properties AS property
+RETURN DISTINCT property
+";https://drive.google.com/open?id=1JzIMTH0Dzh9S2i4SQSweQwZlB6-AE3Ad;"MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, collect(g.name) AS Genes";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8 RETURN p1.name AS Pangenome1, p2.name AS Pangenome2, COLLECT(DISTINCT f1.annotation), COLLECT(DISTINCT f2.annotation);MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood;;;;;
+student-25;Accept;PYTHON;4;4;MongoDB;3;SQL/PGQ;"MATCH (n) RETURN DISTINCT LABELS(n), COUNT(n)
+This query matches all nodes in the database, uses DISTINCT to ensure that each unique label combination is only returned once, and counts the number of nodes for each unique label combination.
+It will return a record for each distinct set of labels found on nodes in the database along with a count of how many nodes have each label set. If nodes have multiple labels, each combination of labels will be returned as a separate record";"MATCH ()-[r]-() RETURN DISTINCT type(r), COUNT(*)
+This query matches all relationships in the database and returns each distinct type once, along with a count of how many times each type occurs.
+The query will return one record for each distinct type of relationship present in the database.";"MATCH (n)
+WITH DISTINCT LABELS(n) AS label, KEYS(n) AS properties
+UNWIND label as lbl
+RETURN lbl, COLLECT(DISTINCT properties) AS properties
+This query matches all nodes and collects their labels and properties. The WITH clause passes the distinct labels and properties to the UNWIND clause which processes each label individually. The RETURN clause then returns each unique label along with a collection of distinct properties associated with nodes of that label .
+ The number of answers it returns depends on the number of distinct labels in the dataset. Each distinct label will be returned in a separate record along with the properties associated with that label.";MATCH ()-[r]->() WITH DISTINCT type(r) AS relationshipType, KEYS(r) AS properties RETURN relationshipType, COLLECT(DISTINCT properties) AS properties.   The number of answers it returns depends on the number of distinct relationship types in the dataset. Each distinct relationship type will be returned in a separate record alongside the properties associated with that type.     ;"Returns a count of nodes for each label present in the database
+MATCH (n)
+RETURN LABELS(n) AS labels, COUNT(n) AS count
+MATCH ()-[r]-()
+Returns a count of relationships for each type present in the database
+RETURN type(r) AS relationshipType, COUNT(r) AS count
+Returns a sample node for each distinct label to examine its properties and structure
+MATCH (n)
+WITH DISTINCT LABELS(n) AS labels, COLLECT(n)[0] AS sampleNode
+RETURN labels, sampleNode
+Returns a sample relationship for each distinct type to examine its properties and structure
+MATCH ()-[r]-()
+WITH DISTINCT type(r) AS relationshipType, COLLECT(r)[0] AS sampleRelationship
+RETURN relationshipType, sampleRelationship
+Returns a distinct list of all property keys used in the graph on nodes
+MATCH (n)
+UNWIND KEYS(n) AS key
+RETURN DISTINCT key";https://drive.google.com/open?id=1naxkD-tBFcAV15zh9jp5jJYCZBv8OmZR1Votp5dZ8Sg;"MATCH (p:Pangenome)-[:ASSOCIATED_WITH]->(g:Gene)
+RETURN p, collect(g) AS Genes
+It returns 2 records";"MATCH (s:Spot)<-[:IS_IN_SPOT]-()<-[:IS_IN_RGP]-()-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome)
+RETURN p.name AS Pangenome, COLLECT(s.name) AS Spots
+It returns 2 records";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[s:IS_SIMILAR]->()-[:IS_IN_MODULE]->(m:Module) WHERE s.identity >= 0.8 RETURN p.name AS Pangenome, collect(DISTINCT m.name) AS Modules. It returns 2 records;MATCH (p1:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]->(f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) WHERE p1 <> p2 AND r.identity >= 0.8 RETURN p1.name AS Pangenome1, p2.name AS Pangenome2, COLLECT(DISTINCT f1.annotation), COLLECT(DISTINCT f2.annotation). it returns 2 records;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]->(n) RETURN p.name AS Pangenome, COLLECT(DISTINCT n.annotation) AS Neighborhood;;;;;
+student-26;Accept;Python;3;2;Redis;3;OpenCypher;"MATCH (n)
+RETURN DISTINCT labels(n) AS node_label";MATCH ()-[r]->() RETURN DISTINCT type(r) AS relationship_type;MATCH (n) RETURN DISTINCT labels(n) AS node_label, KEYS(n) AS properties;MATCH ()-[r]-() RETURN DISTINCT type(r) AS relationship_type, KEYS(r) AS properties;"MATCH (n) RETURN DISTINCT labels(n) AS label, COUNT(n) AS count
+number of results: 9
+
+
+MATCH ()-[r]-() RETURN DISTINCT type(r) AS relationshipType, COUNT(r) AS count
+number of results: 10
+
+
+MATCH (a)-[r]->(b) RETURN DISTINCT type(r) AS relationship_type, labels(a) AS label1, labels(b) AS label2
+number of results: 10";https://drive.google.com/open?id=1LAGwa1qUZ3_7sb4LxqXKhSvN7A-hDvDW;;;;;;;;;;
+student-27;Accept;C,C#,C++,Java, Python, PHP, R, JS, Angular, TypeScript...;4;4;Apache Cassandra, MongoDB, Couchbase;2;SQL/PGQ;"MATCH (n) RETURN DISTINCT labels(n);";MATCH ()-[r]-() RETURN DISTINCT type(r) ;"MATCH (n) RETURN DISTINCT labels(n) AS Label,  keys(n) AS Properties;";"MATCH ()-[r]->() RETURN DISTINCT type(r) AS RelationshipType, keys(r) AS Properties;";"Match (n) return lables(n) as typen , count(*) as totaltypes order by desc
+
+
+MATCH (n)-[r]->() RETURN DISTINCT labels(n) AS SourceLabel, type(r) AS RelationshipType, labels(endNode(r)) AS TargetLabel, count(*) AS Count
+
+
+MATCH (n) RETURN DISTINCT labels(n) AS NodeLabel, size(keys(n)) AS NumProperties, keys(n) AS Properties
+";https://drive.google.com/open?id=1D_haPeUdUXpb3xFUohkfn3TxR-rpYVoB;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_FAMILY]-(g:Gene) RETURN p.name, size(collect(g));MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_FAMILY]-(g:Gene)-[:IS_IN_RGP]-(r:RGP)-[:IS_IN_SPOT]-(s:Spot) RETURN p.name, size(collect(s));match (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]->(m:Module) match  (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[s:IS_SIMILAR]->(f2:Family) where s.identity > 0.8 return p , collect(m);match (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]-(f2:Family)-[:IS_IN_PANGENOME]-(p2:Pangenome) where f1.annotation is not null and f2.annotation is not null and s.identity > 0.8 return p1.name as pangenome1, f1.name as family1, p2.name as pangenome2, f2.name as family2, s.identity as similarity;match (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]-(f2:Family) where f2.annotation is not null return p.name, f2.name;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family) where f.annotation is not null RETURN p.name AS Pangenome_Name, COUNT(DISTINCT f) AS Number_of_Annotated_Families;MATCH (m:Module)-[:IS_IN_MODULE]-(f:Family)-[s:IS_SIMILAR]-(f2:Family)  RETURN m.name AS Module_Name, AVG(s.identity) AS avg_similarity ORDER BY avg_similarity DESC;"MATCH (m:Module)-[:IS_IN_MODULE]-(f1:Family)-[sim:IS_SIMILAR]-(f2:Family)
+WITH m, MIN(sim.identity) AS min_similarity, MAX(sim.identity) AS max_similarity
+ORDER BY min_similarity ASC LIMIT 1 MATCH (m1:Module)-[:IS_IN_MODULE]-(f3:Family)-[sim1:IS_SIMILAR]-(f4:Family)
+WITH m, min_similarity, max_similarity, m1, MAX(sim1.identity) AS max_similarity1
+ORDER BY max_similarity1 DESC LIMIT 1 RETURN m.name AS module_min_similarity, min_similarity,m1.name AS module_max_similarity, max_similarity1";MATCH (f:Family)-[:IS_IN_MODULE]->(m:Module) RETURN f.name AS Gene_Family, COUNT(DISTINCT m) AS num_modules ORDER BY num_modules DESC LIMIT 10;MATCH (f1:Family)-[s:IS_SIMILAR]->(f2:Family) WHERE s.identity >= 0.8 AND s.coverage >= 0.8 WITH f1, f2, s ORDER BY s.identity DESC, s.coverage DESC LIMIT 10 MATCH (f1)-[:HAS_PARTITION]->(p1:Partition) MATCH (f2)-[:HAS_PARTITION]->(p2:Partition) RETURN f1.name AS Family1, f2.name AS Family2, p1.subpartition AS Partition1, p2.subpartition AS Partition2
+student-28;Accept;C#, JS, TS, C/C++, python;4;2;MongoDB;3;OpenCypher;match (n) return distinct labels(n);match ()-[r]-() return distinct type(r) ;"MATCH (n) RETURN DISTINCT labels(n), keys(n) 
+";MATCH ()-[r]->() RETURN DISTINCT type(r) AS RelationshipType, keys(r) AS RelationshipProperties;"MATCH (n)-[r]->() RETURN DISTINCT labels(n) AS Source, type(r) AS Relationship, labels(endNode(r)) AS Target, count(*) AS Count;
+
+
+MATCH (n)-[r]->(m)
+RETURN n, type(r), m 
+LIMIT 100;
+
+
+MATCH (n)
+RETURN labels(n) AS Node_Type, count(*) AS Count
+ORDER BY Count DESC;";https://drive.google.com/open?id=1cS_rRR6AIcWSwMx5JHHg4VI9Dr6AFOkQ;"match (p:Pangenome)<-[:IS_IN_PANGENOME]-(:Family)<-[:IS_IN_FAMILY]-(g:Gene) 
+return p.name,size(collect(g))";"match (p:Pangenome)<-[:IS_IN_PANGENOME]-(:Family)<-[:IS_IN_FAMILY]-(:Gene)-[:IS_IN_RGP]->(:RGP)-[:IS_IN_SPOT]->(s:Spot) 
+return p.name,size(collect(s))";match (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]->(m:Module) match  (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)-[sim:IS_SIMILAR]->(f2:Family) where sim.identity >= 0.8 return p.name as Pangenome, size(collect(m)) as modules;match (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]-(f2:Family)-[:IS_IN_PANGENOME]-(p2:Pangenome) where f1.annotation is not null and f2.annotation is not null and s.identity >= 0.8 return p1.name as pangenome1, f1.name as family1, p2.name as pangenome2, f2.name as family2, s.identity as similarity;match (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:NEIGHBOR]-(f2:Family) where f2.annotation is not null return p.name, f2.name;match (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family) where f.annotation is not null return p.name, count(DISTINCT f);"match (m:Module)-[:IS_IN_MODULE]-(f:Family)-[sim:IS_SIMILAR]-(f2:Family)
+return m.name, avg(sim.identity) as averageSim order by averageSim desc";"MATCH (m:Module)-[:IS_IN_MODULE]-(f1:Family)-[sim:IS_SIMILAR]-(f2:Family)
+WITH m, MIN(sim.identity) AS min_similarity, MAX(sim.identity) AS max_similarity
+ORDER BY min_similarity ASC LIMIT 1 MATCH (m1:Module)-[:IS_IN_MODULE]-(f3:Family)-[sim1:IS_SIMILAR]-(f4:Family)
+WITH m, min_similarity, max_similarity, m1, MAX(sim1.identity) AS max_similarity1
+ORDER BY max_similarity1 DESC LIMIT 1 RETURN m.name AS module_min_similarity, min_similarity,m1.name AS module_max_similarity, max_similarity1";match (f:Family)-[:IS_IN_MODULE]-(m:Module) return f.name, count(m) as modules order by modules desc limit 10;MATCH (f1:Family)-[s:IS_SIMILAR]->(f2:Family) WHERE s.identity >= 0.8 AND s.coverage >= 0.8 WITH f1, f2, s ORDER BY s.identity DESC, s.coverage DESC LIMIT 10 MATCH (f1)-[:HAS_PARTITION]->(p1:Partition) MATCH (f2)-[:HAS_PARTITION]->(p2:Partition) RETURN f1.name AS Family1, f2.name AS Family2, p1.subpartition AS Partition1, p2.subpartition AS Partition2
+student-29;Accept;Javascript, Java, PHP, C, OCaml, C#, Dart;5;2;MongoDB;1;;"CALL db.labels() YIELD label
+RETURN DISTINCT label;";"CALL db.relationshipTypes() YIELD relationshipType RETURN DISTINCT relationshipType;";"MATCH (n)
+WITH labels(n) AS nodeLabels, keys(n) AS nodeProperties
+UNWIND nodeLabels AS nodeLabel
+RETURN DISTINCT nodeLabel, COLLECT(DISTINCT nodeProperties) AS properties;";"MATCH ()-[r]->() WITH type(r) AS relationshipType, keys(r) AS relationshipProperties RETURN DISTINCT relationshipType, COLLECT(DISTINCT relationshipProperties) AS properties;";"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels, COUNT(*) AS count
+
+
+MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS relationshipType, COUNT(*) AS count
+
+
+MATCH (n:Type)
+UNWIND keys(n) AS property
+RETURN DISTINCT property
+
+
+MATCH (n:Type)
+UNWIND keys(n) AS property
+RETURN DISTINCT property
+
+
+MATCH (n)
+RETURN labels(n) AS nodeLabels, properties(n) AS nodeProperties
+
+
+MATCH (n:Type)-[r]-(m)
+WHERE type(r) <> 'REL_TYPE'
+RETURN r, m;";https://drive.google.com/open?id=1-l6qrXoMVKyPMNYrio_qXIOSGHzr1hsi;"// the following request gets the list of pangenomes and for each pangenome the list of distinct associated gene ids
+
+MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(:Family)-[:IS_IN_FAMILY]-(g:Gene)
+RETURN p.name as p_name, COLLECT(DISTINCT id(g)) AS p_g_ids
+
+// assuming all gene names are different, we could also use the following approach, which is probably more readable as it prints out the genes's names instead of their ids.
+
+MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(:Family)-[:IS_IN_FAMILY]-(g:Gene)
+RETURN p.name as p_name, COLLECT(DISTINCT g.names) AS p_g_names
+
+// However, it would seem that one of the pangenomes is attached to a lot of genes that have no name. We'll stick to the first approach then";"// We follow the exact same approach as the previous question, this time with a slightly different path
+
+MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(:Family)-[:IS_IN_FAMILY]-(:Gene)-[:IS_IN_RGP]-(:RGP)-[:IS_IN_SPOT]-(s:Spot)
+RETURN p.name as p_name, COLLECT(DISTINCT id(s)) AS p_s_ids";MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]-(m:Module) MATCH (f)-[r:IS_SIMILAR]-(:Family) WHERE r.identity > 0.8 RETURN p.name as p_name, COLLECT(DISTINCT id(m)) AS p_m_ids, r;MATCH (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[r:IS_SIMILAR]-(f2:Family)-[:IS_IN_PANGENOME]-(p2:Pangenome) WHERE p1 <> p2  AND r.identity > 0.8  AND f1.annotation IS NOT NULL  AND f2.annotation IS NOT NULL RETURN f1.name, f2.name;MATCH (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[:NEIGHBOR]-(f2:Family) WHERE f1.annotation IS NOT NULL  AND f2.annotation IS NOT NULL  AND f1 <> f2 RETURN p1.name AS pan, COLLECT({f1_id: id(f1), f2_id: id(f2)}) AS neighborhood_pairs__list;MATCH (p1:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family) WHERE f1.annotation IS NOT NULL RETURN p1.name AS p_name, size(COLLECT(f1)) AS annotation_family_amount;"MATCH (m:Module)-[:IS_IN_MODULE]-(:Family)-[r:IS_SIMILAR]-(:Family)-[:IS_IN_MODULE]-(m)
+WITH m, AVG(r.identity) AS avg_similarity
+RETURN m.name AS module_name, avg_similarity
+ORDER BY avg_similarity DESC;";"MATCH (:Family)-[min_s:IS_SIMILAR]-(:Family)
+WITH MIN(min_s.identity) AS min
+MATCH (min_m:Module)-[:IS_IN_MODULE]-(f1:Family)-[min_r:IS_SIMILAR]-(f2:Family)
+WHERE min_r.identity = min
+WITH min_m.name AS min_module, min AS min_s
+
+MATCH (:Family)-[max_s:IS_SIMILAR]-(:Family)
+WITH MAX(max_s.identity) AS max, min_module, min_s
+MATCH (max_m:Module)-[:IS_IN_MODULE]-(f1:Family)-[max_r:IS_SIMILAR]-(f2:Family)
+WHERE max_r.identity = max
+RETURN min_module, min_s, max_m.name AS max_module, max AS max_s";"MATCH (f:Family)-[:IS_IN_MODULE]-(:Module) WITH f, COUNT(DISTINCT f) AS module_count RETURN f.name AS gene_family, module_count ORDER BY module_count DESC LIMIT 10;";MATCH (f1:Family)-[:HAS_PARTITION]-(p:Partition) MATCH (f1)-[r:IS_SIMILAR]-(f2:Family) WHERE r.identity > 0.8 AND r.coverage > 0.8 RETURN f1, f2, p.partition ORDER BY r.identity, r.coverage LIMIT 10
+student-30;Accept;Java, C/C++, Python;2;2;MongoDB;1;;MATCH (a) RETURN DISTINCT labels(a);MATCH (a)-[r]->(b) RETURN distinct(type(r));"MATCH (n)
+WITH labels(n) AS nodeLabels, keys(n) AS nodeProperties
+UNWIND nodeLabels AS nodeLabel
+RETURN DISTINCT nodeLabel, COLLECT(DISTINCT nodeProperties) AS properties";MATCH ()-[r]->() WITH type(r) AS relationshipType, keys(r) AS relationshipProperties RETURN DISTINCT relationshipType, COLLECT(DISTINCT relationshipProperties) AS properties;"MATCH (n:T) RETURN n LIMIT 1 where T is the type we want to precisely analyze to see what data type the properties correspond to
+
+We also want to do the same with relationships to see what their correct data types are
+MATCH ()-[r:T]->(b) RETURN r
+LIMIT 1
+
+We also need to know from what node to what node relationships take place:
+
+MATCH (start)-[r]->(end)
+WITH DISTINCT type(r) AS Relationship_Type, labels(start) AS Start_Node_Type, labels(end) AS End_Node_Type
+RETURN Relationship_Type, Start_Node_Type, End_Node_Type";https://drive.google.com/open?id=1h9z8eN7OQGqLfiY8rLpK2GWAOIBvV5zF;"MATCH (p:Pangenome)--(f:Family)--(g:Gene)
+RETURN p.name AS Pangenome, COUNT(g) AS GeneCount, COLLECT(DISTINCT id(g)) AS genes";"MATCH (p:Pangenome)--(f:Family)--(g:Gene)--(r:RGP)--(s:Spot)
+RETURN p.name AS Pangenome, COLLECT(DISTINCT id(s)) AS spots, size(COLLECT(DISTINCT id(s))) AS SpotCount";MATCH (p:Pangenome)--(f:Family)--(m:Module) MATCH (f2:Family)-[sim:IS_SIMILAR]->(f) WHERE sim.identity >= 0.8 RETURN p.name AS Pangenome, COLLECT(DISTINCT id(m)) AS Module;MATCH (f1:Family)--(p1:Pangenome) WHERE f1.annotation IS NOT NULL MATCH (f2:Family)--(p2:Pangenome) WHERE f2.annotation IS NOT NULL AND f1 <> f2 MATCH (f1)-[sim:IS_SIMILAR]->(f2) WHERE sim.identity >= 0.8 RETURN f1, f2;MATCH (p:Pangenome)--(f:Family) WHERE f.annotation IS NOT NULL MATCH (f)-[:NEIGHBOR]-(neighbor:Family) RETURN p.name AS Pangenome, COLLECT(DISTINCT id(neighbor)) AS Neighborhood, size(COLLECT(DISTINCT id(neighbor))) AS neighborCount;MATCH (p:Pangenome)--(f:Family) WHERE f.annotation IS NOT NULL RETURN p.name AS Pangenome, COUNT(DISTINCT f) AS NumberOfAnnotatedFamilies;"MATCH (m:Module)--(f:Family)
+MATCH (f2:Family)-[sim:IS_SIMILAR]->(f)
+WITH m, sim.identity AS similarity
+RETURN m.name AS Module, AVG(similarity) AS AverageGeneSimilarity
+ORDER BY AverageGeneSimilarity DESC";"MATCH ()-[minSim:IS_SIMILAR]->()
+WITH MIN(minSim.identity) AS min
+MATCH (minMod:Module)--(f1:Family)-[minSimMod:IS_SIMILAR]->(f2:Family)
+WHERE minSimMod.identity = min
+WITH minMod.name AS ModuleWithMinSimilarity, min AS MinSimilarity
+
+MATCH ()-[maxSim:IS_SIMILAR]->()
+WITH MAX(maxSim.identity) AS max, ModuleWithMinSimilarity, MinSimilarity
+MATCH (maxMod:Module)--(f1:Family)-[maxSimMod:IS_SIMILAR]->(f2:Family)
+WHERE maxSimMod.identity = max
+RETURN ModuleWithMinSimilarity, MinSimilarity, maxMod.name AS ModuleWithMaxSimilarity, max AS MaxSimilarity";MATCH (f:Family)-[:IS_IN_MODULE]->(m:Module) WITH f, COUNT(DISTINCT m) AS numModules RETURN f.name AS GeneFamily, numModules AS NumberOfModules ORDER BY numModules DESC LIMIT 10;MATCH (f1:Family)--(p:Partition) MATCH (f1)-[sim:IS_SIMILAR]->(f2:Family) WHERE sim.identity >= 0.8 AND sim.coverage >= 0.8 RETURN f1, f2, p.partition ORDER BY sim.identity, sim.coverage
+student-31;Accept;C, C++, Cypher, python, Java, SQL;3;2;Other;2;OpenCypher;"match (n) return distinct(labels(n))
+search for the distinct label of each node";match (n)-[r]->(m) return distinct type(r);match (n) return distinct keys(n),labels(n);match (n)-[r]->(m) return distinct type(r),keys(r);"match (n)-[r]->(m) return distinct labels(n),type(r),labels(m)
+We want to know how each node are connected to each others so this query help us to understand it. ";https://drive.google.com/open?id=1Jeydrf1iaxNFO4Gg4A-VE75vOoyESNN3;;;;;;;;;;
+student-32;Accept;C, C++, C#, python, java, php, sql, cypher, html, css, ocaml;4;2;MongoDB;2;OpenCypher;"match (n) return distinct labels n
+labels n returns the label of the node n, we add distinct to select each label only one time.";match ()-[r]->() return distinct type(r);match (n) return distinct keys(n),labels(n);match ()-[r]->() return distinct keys(r),type(r);"match (n1)-[r]->(n2) return distinct labels(n1),type(r),labels(n2)
+This request helps understanding what relation is used to link which pair of nodes together.";https://drive.google.com/open?id=1AgDHy2_0uQm9FJBvoOgMZxjFggMBnNgX;;;;;;;;;;
+student-33;Accept;C, SQL, Cypher, Python, OCaml, C#, C++, Java, JavaScript, R, ProLog;4;2;Other;1;OpenCypher, GraphQL, SQL/PGQ;match (a) return distinct labels(a);match (a)-[r]-(b) return distinct type(r);match (a) return distinct labels(a), keys(a);match ()-[a]-() return distinct type(a), keys(a);"match (a)-[r]->(b) with labels(a) as aa, labels(b) as bb, type(r) as rr return distinct aa,bb,rr
+10 records
+
+avec cette requête, on peut savoir quelles types de relations peuvent relier les différents types de noeuds";https://drive.google.com/open?id=1b8uKxJbaqj9PmtAstDFfKkEfkU9W_Das;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f)-[:IS_IN_FAMILY]-(g:Gene) RETURN distinct p.name, g.name ;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f)-[:IS_IN_FAMILY]-(g:Gene)-[:IS_IN_RGP]-(r)-[:IS_IN_SPOT]-(s:Spot) RETURN distinct p.name, s.name;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_MODULE]-(m:Module)-[:IS_IN_MODULE]-(g:Family), (f)-[ss:IS_SIMILAR]-(g) where ss.coverage >= 0.8 RETURN distinct p.name, m.name;MATCH (f:Family)-[ss:IS_SIMILAR]->(g:Family) where8 ss.coverage >= 0.8 AND f.annotation IS NOT NULL AND g.annotation IS NOT NULL RETURN distinct f.name, g.name;MATCH (p:Pangenome)--(f:Family)-[ss:NEIGHBOR]-(g:Family) where f.annotation IS NOT NULL AND g.annotation IS NOT NULL RETURN distinct p.name, f.name;MATCH (p:Pangenome)--(f:Family) where f.annotation IS NOT NULL RETURN distinct p.name, count(f);match (m:Module)-[:IS_IN_MODULE]-(f:Family)-[r:IS_SIMILAR]->(g:Family) return m.name, avg(r.identity) as average order by average desc;"match (max:Module)-[:IS_IN_MODULE]-(:Family)-[rmax:IS_SIMILAR]->(:Family) with max(rmax.identity) as simi_max 
+match (min:Module)-[:IS_IN_MODULE]-(:Family)-[rmin:IS_SIMILAR]->(:Family) with min(rmin.identity) as simi_min, simi_max
+match (m:Module)-[:IS_IN_MODULE]-(:Family)-[r:IS_SIMILAR]->(:Family) where r.identity = simi_max with m as max, simi_min
+match (m:Module)-[:IS_IN_MODULE]-(:Family)-[r:IS_SIMILAR]->(:Family) where r.identity = simi_min and m = max with m as min, max
+return distinct min.name, max.name";match (m:Module)-[:IS_IN_MODULE]-(f:Family) return f.name, count(m) as nb order by nb desc limit 10;match (f:Family)-[r:IS_SIMILAR]->(g:Family)-[:HAS_PARTITION]-(p:Partition) where r.identity >= 0.8 and r.coverage >= 0.8  return f.name, g.name, p.subpartition order by [r.identity, r.coverage] desc limit 10
+student-34;Accept;C,C#,OCaml,Python,Lisp;4;2;Other;1;SQL/PGQ;match (a) return distinct labels(a);match ()-[r]-() return distinct type(r);match (a) return distinct labels(a), keys(a);match ()-[r]-() return distinct type(r), keys(r);"match (a)-[r]->(b) return distinct labels(a), type(r), labels(b) : 10 records (how are labels connected to each other ?)
+
+match (a) with labels(a) as nodeLabel return nodeLabel, count(nodeLabel) as nb : 9 records (get the distribution of labels)
+
+match (a) with distinct labels(a) as etiq, keys(a) as keyList unwind(keyList) as c return etiq, collect(distinct c) as allKeys : 9 records (get all properties associated with a label)
+
+match ()-[r]-() with distinct type(r) as etiq, keys(r) as keyList unwind(keyList) as c return etiq, collect(distinct c) as allKeys : 9 records (get all properties associated with a relationship type)";https://drive.google.com/open?id=1B8DK88o8xT3EkaEV1rC2xp6PQ18kNByy;match (a:Pangenome)<-[:IS_IN_PANGENOME]-()<-[:IS_IN_FAMILY]-(b) return a, collect(b) as genes;match (a:Pangenome)<-[:IS_IN_PANGENOME]-()<-[:IS_IN_FAMILY]-(:Gene)-[:IS_IN_RGP]->()-[:IS_IN_SPOT]->(b) return a, collect(b) as spots;match (m)<-[:IS_IN_MODULE]-(a)-[r:IS_SIMILAR]-(b) where r.identity >= 0.8 with m match (p:Pangenome)<-[:IS_IN_PANGENOME]-()-[:IS_IN_MODULE]->(m) return distinct p,m;match (p:Pangenome)<-[:IS_IN_PANGENOME]-(a)-[r:IS_SIMILAR]->(b)-[:IS_IN_PANGENOME]->(q:Pangenome) where p <> q and  r.identity >= 0.8 and a.annotation is not null and b.annotation is not null return a,b;match (p:Pangenome)<-[:IS_IN_PANGENOME]-(a)-[:NEIGHBOR]-(b) where a.annotation is not null with p, collect(a) as aa, collect(b) as bb unwind aa+bb as families return distinct p, families;match (p:Pangenome)<-[:IS_IN_PANGENOME]-(a) where a.annotation is not null return p.name as panName, count(a);match (m:Module)<-[:IS_IN_MODULE]-()-[r:IS_SIMILAR]-() return m, avg(r.identity) as averageId order by averageId desc;"match ()-[r:IS_SIMILAR]-() with min(r.identity) as idMin, max(r.identity) as idMax
+match (m:Module)<-[:IS_IN_MODULE]-(a)-[r:IS_SIMILAR]-(b) where r.identity = idMin or r.identity = idMax return distinct m.name as modName, r.identity as id order by modName,id asc";match (a)-[:IS_IN_MODULE]->(b) return a,count(b) as n order by n desc limit 10;match (a)-[r:IS_SIMILAR]-(b) where r.identity >= 0.8 and r.coverage >= 0.8 with a,b,r.identity as id,r.coverage as cov match (a)-[:HAS_PARTITION]->(p)<-[:HAS_PARTITION]-(b) return a,b,id,cov,p.subpartition as subpartition limit 10
+student-35;Accept;Python, java, C#, C, C++, dart, R,;5;3;Other;2;OpenCypher;MATCH (a) return distinct labels(a) as nodeLabels;match ()-[r]->() return distinct type(r);match (n) return distinct labels(n) as nodeLabel, keys(n) as properties;match ()-[r]->() return distinct  type(r) as relationshipType, keys(r) as properties;"match (n) unwind keys(n) as propertyKey return distinct propertyKey : 17.
+
+
+match ()-[r]->() unwind keys(r) AS propertyKey return distinct propertyKey : 4.
+
+
+match (start)-[r]->(end)  return distinct type(r) AS relationshipType, labels(start) AS startLabels, labels(end) AS endLabels: 10.";https://drive.google.com/open?id=1i_lK99jV9uDaKIQu_piIMUeAsX1N5fnW;"match (p:Pangenome)-[:IS_IN_PANGENOME]-(f:Family)-[:IS_IN_FAMILY]-(g:Gene) return p
+, collect(g) AS associatedGenes";"MATCH (p)-[:IS_IN_PANGENOME]-(f)-[:IS_IN_FAMILY]-(g:Gene)-[:IS_IN_RGP]-(rgp:RGP)-[:IS_IN_SPOT]-(spot:Spot)
+RETURN p.name, collect(spot)
+";MATCH (p:Pangenome)-[:IS_IN_PANGENOME]-(f1:Family)-[sim:IS_SIMILAR]-(f2:Family) WHERE sim.identity >= 0.8 WITH p, COLLECT(f1) AS similarFamilies MATCH (p)-[:IS_IN_PANGENOME]-(f3:Family)-[:IS_IN_MODULE]-(m:Module) WHERE f3 IN similarFamilies RETURN p.name AS Pangenome, m.name AS Module;match (p1:pangenome)-[:is_in_pangenome]-(f1:family)-[sim:is_similar]-(f2:family)-[:is_in_pangenome]-(p2:pangenome) where f1.annotation is not null and f2.annotation is not null and sim.identity >= 0.8 return p1.name as pangenome1, f1.name as family1, p2.name as pangenome2, f2.name as family2, sim.identity as similarity;match (p:pangenome)-[:is_in_pangenome]-(f:family) where exists(f.annotation) return p.name as pangenome, f.name as family, [(f)-[:is_similar]-(other) | other.name] as neighborhood;match (p:pangenome)-[:is_in_pangenome]-(f:family) where exists(f.annotation) return p.name as pangenome, count(distinct f) as numberofannotatedfamilies;"match (m:module)-[:is_in_module]-(f:family)-[sim:is_similar]-(other:family)
+with m, avg(sim.identity) as averagesimilarity
+return m.name as module, averagesimilarity
+order by averagesimilarity desc";;match (f:family)-[:is_in_module]->(m:module) with f, count(distinct m) as modulecount order by modulecount desc limit 10 return f.name as genefamily, modulecount;
+student-36;Accept;C,C++,C#,Java,Shell,Bash,Python,Ocaml,RSC-V,html,css;3;3;Other;3;OpenCypher, SQL/PGQ;"
+match (a) return distinct labels(a)";match ()-[r]-() return distinct type(r);match (a) unwind keys(a) as prop return labels(a) as node_label, COLLECT(DISTINCT prop) as properties;match ()-[r]-()  unwind keys(r) as prop return type(r) as node_type, COLLECT(DISTINCT prop) as properties;"Afin de savoir quels noeuds sont reliés entre eux et par quelles relations, dans quel sens, avec quelles étiquettes : 
+match (a)-[r]->(b) return distinct labels(a) as prop_source, labels(b) as prop_target, type(r) as relation_type, keys(r) as key_relation
+
+On vérifie qu'on a rien oublié grâce aux questions précédentes
+";https://drive.google.com/open?id=15AA9UKD6Q1BCcRGOGxXyf2np0ZQzVakG;"MATCH (a:Pangenome)<-[:IS_IN_PANGENOME]-(b:Family)<-[:IS_IN_FAMILY]-(c:Gene)
+WITH a.name as pange_name, c.name AS gene_name, id(c) AS gene_id
+RETURN DISTINCT pange_name, COLLECT(distinct[gene_name, gene_id]) AS gene_info
+ORDER BY pange_name ";"MATCH (a:Pangenome)<-[:IS_IN_PANGENOME]-(b:Family)<-[:IS_IN_FAMILY]-(c:Gene)-[:IS_IN_RGP]->(d:RGP)-[:IS_IN_SPOT]->(e:Spot)
+WITH a.name as pange_name, e.name AS spot_name, id(e) AS spot_id
+RETURN DISTINCT pange_name, COLLECT(distinct[spot_name, spot_id]) AS spot_info
+ORDER BY pange_name";MATCH (a:Pangenome)<-[:IS_IN_PANGENOME]-(b1:Family)-[r:IS_SIMILAR]-(b2:Family)-[:IS_IN_MODULE]->(c:Module) WITH a.name AS pange_name, c.name AS module_name, b1.name AS fam1_name, b2.name AS fam2_name, COLLECT(r.identity) AS identities WHERE any(id IN identities WHERE id >= 0.8) RETURN DISTINCT pange_name, COLLECT(DISTINCT module_name), COLLECT(DISTINCT [fam1_name, identities, fam2_name]) AS family_info;MATCH (a:Pangenome)<-[:IS_IN_PANGENOME]-(b1:Family)-[r:IS_SIMILAR]-(b2:Family)-[:IS_IN_PANGENOME]->(c:Pangenome) WHERE EXISTS(b1.annotation) AND EXISTS(b2.annotation) and id(a)<>id(c) WITH a.name AS pange_name, b1.name AS fam1_name, b2.name AS fam2_name, b1.annotation as annot, COLLECT(r.identity) AS identities WHERE ALL(id IN identities WHERE id >= 0.8) RETURN DISTINCT [fam1_name,identities, fam2_name,annot] AS family_info;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:NEIGHBOR]-(neighbor:Family) WHERE EXISTS(f.annotation) and exists(neighbor.annotation) RETURN p.name AS pangenome, f.name AS family_name, COLLECT(DISTINCT neighbor.name) AS neighborhood;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) WHERE EXISTS(f.annotation) with p.name as pangenome, COLLECT(distinct f) AS neighborhood RETURN pangenome, size(neighborhood) as nb_families_annotated;"MATCH (m:Module)<-[:IS_IN_MODULE]-(f:Family)-[r:IS_SIMILAR]-(other:Family)
+WITH m.name AS module, f, AVG(r.identity) AS avg_similarity
+RETURN distinct module, AVG(avg_similarity) AS average_similarity
+ORDER BY average_similarity DESC";"MATCH (m:Module)<-[:IS_IN_MODULE]-(f1:Family)-[r:IS_SIMILAR]-(f2:Family)-[:IS_IN_MODULE]->(m)
+WITH m.name AS module, MIN(r.identity) AS min_similarity, MAX(r.identity) AS max_similarity
+MATCH (m_min:Module)<-[:IS_IN_MODULE]-(f1:Family)-[min_rel:IS_SIMILAR {identity: min_similarity}]->(f2:Family)
+MATCH (m_max:Module)<-[:IS_IN_MODULE]-(f3:Family)-[max_rel:IS_SIMILAR {identity: max_similarity}]->(f4:Family)
+RETURN [m_min.name, [f1.name,f2.name]],[m_max.name,[f3.name,f4.name]]";MATCH (f:Family)-[:IS_IN_MODULE]->(m:Module) WITH f.name as gene_family , collect(DISTINCT id(m)) AS modules RETURN gene_family, size(modules) as nb_module ORDER BY nb_module DESC LIMIT 10;I didn't do the Q13, so I don't know how to do this question
+student-37;Accept;C,Python,Unix;4;3;MongoDB;1;SQL/PGQ;" MATCH (n) RETURN DISTINCT LABELS(n)
+/* Getting the label of each node, then displaying it only once per label */";MATCH (p)-[r]->(q) RETURN DISTINCT type(r);"MATCH (p) RETURN DISTINCT LABELS(p),keys(p)
+/* Selects every label and their properties as a LIST
+would be better if properties were considered as a set, which would curtail repetitions */";MATCH (p)-[r]-(q) RETURN DISTINCT type(r),keys(r);"MATCH (p)-[r]->(q) RETURN DISTINCT LABELS(p),type(r),LABELS(q) |10 results
+/* Determines which relation links which types of nodes */
+
+
+/* Getting the type of the different attributes from the nodes, not implemented.
+The problem comes from getting the type of the attributes, as type() function returns the label of a relation */
+
+
+/*Getting the type of the different attributes from the relations, not implemented.
+Same as above */";https://drive.google.com/open?id=1Q7MKiRputQZ26gf0vO90LImyuhSyJPqc;;;;;;;;;;
+student-38;Accept;JavaScript , Java , C , C++ , Python , HTML;4;3;MongoDB;3;OpenCypher;MATCH (n) RETURN DISTINCT labels(n);MATCH ()-[r]-() RETURN DISTINCT type(r);MATCH (n) RETURN DISTINCT labels(n), keys(n);MATCH ()-[r]-() RETURN DISTINCT type(r),keys(r);"On va récupérer les associations ainsi les étiquettes qu'elles relient
+
+MATCH (a)-[r]->(b) return distinct type(r),labels(a),labels(b)
+
+On va se focaliser sur le label ""Gene"" et voir toutes ses propriétés
+
+MATCH (n) WHERE labels(n) = [""Gene""] RETURN DISTINCT labels(n),keys(n)
+
+On va voir les associations sans propriétés
+MATCH ()-[r]-() WHERE keys(r)=[] RETURN DISTINCT type(r)
+
+Les associations avec au moins une propriété
+MATCH ()-[r]-() WHERE NOT keys(r)=[] RETURN DISTINCT type(r)
+";https://drive.google.com/open?id=1WWkSdpp5FHXSnhfrjdL7BylcFpDbBz0l;"MATCH (p:Pangenome)-[*2]-(g:Gene)
+RETURN p.name, COLLECT(distinct(g.name)) AS AssociatedGenes";"MATCH (p:Pangenome)-[]-(:Family)-[]-(:Gene)-[]-(:RGP)-[]-(s:Spot)
+RETURN p.name, COLLECT(distinct(s.name)) AS AssociatedSpots";match (p:Pangenome)-[*2]-(m:Module)-[]-(f1:Family)-[sim:IS_SIMILAR]-(f2:Family) WHERE (f2)-[:IS_IN_MODULE]-(m) AND sim.identity>=0.8 RETURN p,m,f1,f2;match (p1:Pangenome)-[]-(f1:Family)-[sim:IS_SIMILAR]-(f2)-[]-(p2:Pangenome) WHERE f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL AND sim.identity>=0.8 AND p1<>p2 RETURN f1.name,f2.name;match (p:Pangenome)-[]-(f:Family)-[:NEIGHBOR]-(n:Family) WHERE n.annotation IS NOT NULL RETURN p.name,COLLECT(DISTINCT n.name);match (p:Pangenome)-[]-(f:Family) WHERE f.annotation IS NOT NULL RETURN p.name,COUNT(DISTINCT f);MATCH (f1:Family)-[]-(m:Module)-[]-(f2:Family) MATCH (f1)-[sim:IS_SIMILAR]-(f2) RETURN m, AVG(sim.identity) as avg_identity order by avg_identity desc;match (p1:Pangenome)-[]-(f1:Family)-[sim:IS_SIMILAR]-(f2)-[]-(p2:Pangenome) WHERE f1.annotation IS NOT NULL AND f2.annotation IS NOT NULL AND sim.identity>=0.8 AND p1<>p2 RETURN f1.name,f2.name limit 2;match (f1:Family)-[]-(m:Module) return f1.name,COUNT(distinct  m) as modules order by modules desc limit 10;MATCH (f1:Family)-[sim:IS_SIMILAR]-(f2:Family) WHERE sim.identity >= 0.8 AND sim.coverage >= 0.8 WITH f1, f2, sim ORDER BY sim.identity DESC,sim.coverage DESC LIMIT 10 MATCH (f1)-[]-(p1:Partition) MATCH (f2)-[]-(p2:Partition) RETURN f1.name, f2.name, p1.subpartition AS Partition1, p2.subpartition AS Partition2
+student-39;Accept;Python;3;2;MongoDB;1;OpenCypher;match (n) return distinct(labels(n));match (n)-[r]->(m) return distinct type(r);match (n) return distinct keys(n),labels(n);match (n)-[r]->(m) return distinct type(r),keys(r);match (n)-[r]->(m) return distinct labels(n),type(r),labels(m);https://drive.google.com/open?id=1tDk_KKyNYm172o5h1CNnmKcBA6xV5dH3;;;;;;;;;;
+student-40;Accept;C, Python, HTML, NodeJS;4;3;Other;1;;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels
+
+We select every nodes and we return every distinct possible label of them";MATCH ()-[r]->() RETURN DISTINCT type(r) AS relationshipTypes Same thing as q1 but we select the relations not the nodes;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabel, keys(n) AS nodeProperties
+
+We select the labels and the nodes and their keys (set of properties)";MATCH ()-[r]->() RETURN DISTINCT type(r) AS relationshipType, keys(r) AS relationshipProperties Same thing as previous question but with relations instead of nodes;"// Counting number of nodes for each label
+MATCH (n)
+RETURN labels(n) AS nodeLabel, count(*) AS count
+ORDER BY count DESC
+
+9 answers, same as 1st question but with the count
+
+We'll see, for each node label, every relationship that they have with other type of nodes
+for example
+match(g:Gene)-[r]->(p) return distinct type(r),labels(p)
+for each 9 possible node types";https://drive.google.com/open?id=1FSh53J1v2rmQ26dYMVSkqBHekFXOdqK7;;;;;;;;;;
+student-41;Accept;python,c,c#,R;4;3;Apache Cassandra, MongoDB;3;OpenCypher, GraphQL, SQL/PGQ, SPARQL;call db.labels();CALL db.relationshipTypes();"MATCH (node)
+RETURN distinct labels(node), keys(node) AS propertyKeys";MATCH ()-[r]->() return DISTINCT type(r) AS relationshipType, keys(r) as propertyKeys;"match (n:Genome)  return n limit 10
+match (n:Pangenome)  return n limit 10 (res:2)
+match (n:Spot)  return n limit 10
+match (n) return n limit 100";https://drive.google.com/open?id=1T0nKxxxJ30-ZTl_j8tPMQ8lwO95nxYzg;;;;;;;;;;
+student-42;Accept;Python,C,Java;4;3;MongoDB;3;SQL/PGQ, SPARQL;"MATCH (n) RETURN distinct labels(n), count(*)
+
+It returns 9 distinct labels";"Match ()-[r]->() return Distinct type(r) as relationShiptype, count(r) as numberOf
+
+It return 9 distinct relationship types.";"MATCH (n)
+ RETURN DISTINCT labels(n) AS node_label, keys(n) AS property_labels";MATCH ()-r->()  RETURN DISTINCT type(r) AS relationship, keys(r) AS property_relationship;"MATCH (a)-[r]-(b)
+RETURN DISTINCT labels(a) AS labels_a, type(r) AS relation_type, labels(b) AS labels_b;
+
+Cette requete normalement permet de retourner le type de relation qu'il existe entre chaque Label Node distinct, elle me permettra de définir le schéma.";https://drive.google.com/open?id=1od2YImCZe0lnalzn-LbSc1MVoIjOUVF2;;;;;;;;;;
+student-43;Accept;python, html, css, javascript, java, c, ;4;3;MongoDB;2;;MATCH (n) RETURN DISTINCT LABELS(n)   ⇒  Returns 9 results;match () - [r] -> () return distinct type(r)   ⇒  Return 10 results;match (n) return distinct labels(n), keys(n)  ⇒ Return 18 results;match () - [r] - () return distinct type(r), keys(r) ⇒ Return 10 results;"match (n) - [r:IS_IN_GENOME] -> (y) return distinct labels(n), labels(y)
+This one returns 9519 results
+
+match (n) - [r:IS_IN_FAMILY] -> (y) return distinct labels(n), labels(y)
+This one returns 1696342 results
+
+match (n) - [r:HAS_PARTITION] -> (y) return distinct labels(n), labels(y)
+This one returns  37353 results";https://drive.google.com/open?id=1B59hB1PQVye4PwezX2qWcqZhChupDY_I;;;;;;;;;;
+student-44;Accept;Python , Java , C , SQL ;4;4;MongoDB;2;OpenCypher, SPARQL;Match (n) return Distinct(labels (n)) ;Match ()-[r]-() return Distinct type(r),count(r);"MATCH (n)
+ 
+RETURN DISTINCT labels(n) AS node_label, keys(n) AS property_labels, count(*) AS result_count
+";MATCH ()-[r]->()   RETURN DISTINCT type(r) AS relation_types, keys(r) AS property_labels, count(*) AS result_count;"CALL db.schema.nodeTypeProperties
+
+MATCH (n)-[r]->(m)
+RETURN Distinct labels(n) AS node_labels, type(r) AS relationship_type, labels(m) AS target_labels , count(*)";https://drive.google.com/open?id=1cE1DH0zegzr5EfjM73VQ01dgdsxTILDc;;;;;;;;;;
+student-45;Accept;python , c , java;3;2;MongoDB, Redis;2;GraphQL, SPARQL;match(n) return distinct labels(n)  , it returns 9 answers;"match (n)[r]>(m) return distinct type(r)
+it  returns 10";"MATCH (n)
+WITH DISTINCT keys(n) AS allProperties
+UNWIND allProperties AS property
+RETURN DISTINCT property;   ( 17 answers)";"MATCH (n)-[r]-(m) WITH DISTINCT keys(r) AS allProperties UNWIND allProperties AS property RETURN DISTINCT property;  it returns 4 answers";match(n)-[r: type de relation*]-(m) return n,r,m  limit 15 j ai fait bcp de relation comme ce type .;https://drive.google.com/open?id=1teRbGDDOtblPIC-obKBCKhYj2Jo6BVT1;;;;;;match (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) return p.name, count(distinct(f.name)) as numberFamilies;MATCH (m:Module)-[:IS_IN_MODULE]-(f:Family)-[s:IS_SIMILAR]-(l:Family) return m.name,avg(s.coverage) as averageSimilarity;MATCH (m:Module)-[:IS_IN_MODULE]-(f:Family)-[s:IS_SIMILAR]-(l:Family) WITH f,m,s,l, MIN(s.identity) AS min_identity, MAX(s.identity) AS max_identity WHERE s.identity = min_identity OR s.identity = max_identity RETURN m.name,count(f)  it returns 497 results;MATCH (f:Family)-[:IS_IN_MODULE]-(m:Module) with f,m,COUNT(m) as total_m return f.name,total_m order by total_m desc LIMIT 10;.
+student-46;Accept;python, java, c;4;3;MongoDB;2;OpenCypher, SPARQL;"MATCH (n)
+WITH labels(n) AS nodeLabels
+RETURN nodeLabels, COUNT(*) AS labelCount;";"MATCH ()-[r]-()
+WITH type(r) AS relType
+RETURN relType, COUNT(*) AS relCount;";"MATCH (n)
+WITH labels(n) AS nodeLabels, properties(n) AS nodeProperties
+RETURN nodeLabels, nodeProperties, COUNT(*) AS labelCount;";"MATCH ()-[r]-() WITH type(r) AS relType, properties(r) AS relProperties RETURN relType, relProperties, COUNT(*) AS relCount;";"List all Node Labels with Count and Associated Relationship Types:
+MATCH (n)-[r]->()
+RETURN labels(n) AS NodeLabels, COUNT(n) AS NodeCount, COLLECT(DISTINCT type(r)) AS RelationshipTypes
+ORDER BY NodeCount DESC;
+
+List all Relationship Types with Node Labels at Both Ends:
+MATCH (n)-[r]->(m)
+RETURN DISTINCT type(r) AS RelationshipType, labels(n) AS SourceNodeLabels, labels(m) AS TargetNodeLabels;
+
+";https://drive.google.com/open?id=18ZVM3p8JtYW3ntgT_uLffAaNHU7YbuWO;;;;;;;;;;
+student-47;Accept;Python;4;4;Apache Cassandra, MongoDB;3;SQL/PGQ, SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n) AS labels
+9 labels";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS types
+10 relationship types";"MATCH (n)
+UNWIND labels(n) AS label
+WITH label, keys(n) AS props
+RETURN label, COLLECT(DISTINCT props) AS properties
+";MATCH ()-[r]-() WITH DISTINCT type(r) AS relationshipType, keys(r) AS props RETURN relationshipType, COLLECT(DISTINCT props) AS properties;"MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (m)-[r]-()
+WHERE label IN labels(m)
+RETURN label, COLLECT(DISTINCT type(r)) AS relationships
+For each label, its relationships
+MATCH (n)
+UNWIND labels(n) AS label
+WITH DISTINCT label
+MATCH (n)-[]-(m)
+WITH label, labels(m) AS connectedLabels
+RETURN label, COLLECT(DISTINCT connectedLabels) AS connectedNodeLabels
+For each label, its connected labels, for each label, it can connect with 9 labels
+MATCH (n)-[r]->(m)
+WITH DISTINCT labels(n) AS SourceLabels, type(r) AS RelationshipType, labels(m) AS TargetLabels
+RETURN SourceLabels, RelationshipType, COLLECT(DISTINCT TargetLabels) AS ConnectedNodeLabels
+For each label and its correspond relationship, the label connected. 10 records at total.";https://drive.google.com/open?id=1jtwqiv3vqERyD_3BNX8GOdYHpIKGdAuS;;;;;;;;;;
+student-48;Accept;Python, C, C++, Java, SQL;5;3;MongoDB;3;SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n)
+Answer : 9";"MATCH ()-[r]->()
+RETURN DISTINCT type(r)
+Answer : 10";"MATCH (n)
+RETURN DISTINCT labels(n), keys(n)
+Answer : 18";"MATCH ()-[r]->() RETURN DISTINCT type(r), keys(r) ; Answer : 10";"Query 1: MATCH (s)-[r]->(t:Genome) RETURN DISTINCT labels(s), type(r)
+Answer : 1
+
+Query 2 : MATCH (s)-[r:IS_IN_CONTIG]->(t) RETURN DISTINCT labels(s), labels(t)
+Answer : 1
+
+Query 3 : MATCH (s:Gene)-[r]->(t) RETURN DISTINCT type(r), labels(t)
+Answer : 3 
+
+Query 4 : MATCH ()-[r:NEIGHBOR]->() RETURN DISTINCT keys(r)
+Answer : 1
+
+Query 5 : MATCH (r:Genome) RETURN DISTINCT keys(r)
+Answer : 1";https://drive.google.com/open?id=19XONLxqPPmMl4NGvcHZs_iB_WIc8WIbQ;"Requête qui permet d'obtenir pangenome/genes : 
+MATCH (g: Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) RETURN p, g;
+
+Mais requête prenant du temps à s'exécuter, j'ai changé cette requête en : 
+MATCH (g:Gene)-[:IS_IN_FAMILY]->()-[:IS_IN_PANGENOME]->(p:Pangenome) 
+RETURN COUNT(DISTINCT p) AS nbPangenome,COUNT(DISTINCT g) AS nbGenes
+
+Ainsi je sais que j'ai 2 noeuds Pangenome associés à 1696342 noeuds Gene";"Requête qui permet d'obtenir pangenome/spots : 
+MATCH (g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) 
+MATCH (g)-[:IS_IN_RGP]->(r:RGP)-[:IS_IN_SPOT]->(s:Spot)
+RETURN p, s
+
+293919 records avec 2 noeuds Pangenome et 298 noeuds Spot";"MATCH (f1:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) MATCH (f1)-[:IS_IN_MODULE]->(m:Module) MATCH (f1)-[i:IS_SIMILAR]->(f2:Family) WHERE i.identity >= 0.8 RETURN p, m; Avec 33 records.";"MATCH (f1:Family)-[:IS_IN_PANGENOME]->(p1:Pangenome) MATCH (f2:Family)-[:IS_IN_PANGENOME]->(p2:Pangenome) MATCH (f1)-[i:IS_SIMILAR]->(f2) WHERE (i.identity >= 0.8 AND EXISTS(f1.annotation) AND EXISTS(f2.annotation)) RETURN f1, f2, p1, p2; 18 noeuds sortis en résultat avec 2 noeuds Pangenome et 16 noeuds Family";"MATCH (f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) MATCH (f)-[n:NEIGHBOR]-(f2:Family) WHERE EXISTS(f.annotation) AND EXISTS(f2.annotation) RETURN p, n.weight; J'obtiens ainsi 241 records.";"MATCH (f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) WHERE EXISTS (f.annotation) RETURN p.name, COUNT(DISTINCT f) AS nombreFamilles LIMIT 25; Il me retourne 2 records avec 110 familles pour ""Enterobacter.cloacae"" et 92 familles pour ""Acinetobacter.baumannii""";"MATCH (f:Family)-[:IS_IN_MODULE]->(m:Module) MATCH (f)-[i:IS_SIMILAR]->(f2:Family) RETURN m, AVG(i.identity) AS averageSimilarite ORDER BY averageSimilarite DESC; 466 records obtenus.";"MATCH (f1:Family)-[:IS_IN_MODULE]->(m:Module) MATCH (f2:Family)-[:IS_IN_MODULE]->(m:Module) MATCH (f1)-[i:IS_SIMILAR]->(f2) RETURN m.name, MIN(i.identity), MAX(i.identity) ; 6 records";"MATCH (f:Family)-[:IS_IN_MODULE]->(m:Module) RETURN f, COUNT(DISTINCT m) AS nbModules ORDER BY nbModules DESC LIMIT 10; 10 records obtenus;";"MATCH (f1:Family)-[i:IS_SIMILAR]->(f2:Family) WHERE i.identity >= 0.8 AND i.coverage >= 0.8 MATCH (f1)-[:HAS_PARTITION]->(p1:Partition) MATCH (f2)-[:HAS_PARTITION]->(p2:Partition) RETURN f1.name, f2.name, p1.subpartition, p2.subpartition, i.identity, i.coverage LIMIT 10; 10 réponses"
+student-49;Accept;python,java;3;2;Other;1;OpenCypher, SQL/PGQ;"MATCH (n)
+RETURN DISTINCT labels(n) AS node_labels ,
+ 9 answers";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS relationship_type,
+10 answers";"MATCH (n)
+RETURN DISTINCT labels(n) AS node_labels; 9 answers";"MATCH ()-[r]->() WITH TYPE(r) AS relationshipType, COLLECT(DISTINCT keys(r)) AS properties RETURN relationshipType, properties; 10 Answers";"- MATCH (n)-[r:IS_IN_SPOT]->(m)
+RETURN n, r, m
+LIMIT 25 
+
+-MATCH (n)-[r]->(m)
+RETURN n, r, m
+LIMIT 25";https://drive.google.com/open?id=1v1fk7jpkRkk8pcDP7Xgq-vgd-W04vfo1;;;;;;;;;;
+student-50;Accept;python;2;1;Other;2;OpenCypher, SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n) AS nodeLabels
+
+9 answers";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS relationshipType
+
+10 answers";"CALL db.labels() YIELD label
+WITH label
+MATCH (n)
+WHERE label IN labels(n)
+WITH label, n
+RETURN label, COLLECT(DISTINCT keys(n)) AS properties;
+";"MATCH ()-[r]->() WITH TYPE(r) AS relationshiptype, COLLECT(DISTINCT keys(r)) AS properties RETURN relationshipType, properties;  10 answers";"MATCH (n)-[r]->(m)
+WHERE TYPE(r) = 'NEIGHBOR'
+RETURN n, r,m
+LIMIT 5; 
+
+MATCH (n)-[r:IS_IN_SPOT]->(m)
+RETURN n, r, m
+LIMIT 25 
+
+
+MATCH (n)-[r]->(m)
+RETURN n, r, m
+LIMIT 25";https://drive.google.com/open?id=1yKz71nQVykt_Tl7rSb9fIzA0SY57u8nS;;;;;;;;;;
+student-51;Accept;Python, C, C++, Java, R, Octave, Matlab, Pascal, Arduino;4;3;Other;2;SQL/PGQ;"CALL db.labels() YIELD label
+RETURN DISTINCT label;
+
+=> 9 labels";"CALL db.relationshipTypes() YIELD relationshipType
+RETURN DISTINCT relationshipType;
+
+=> 10 relationships";"(Pour cette requete j'ai pas bien compris et je n'ai pas eu de réponse claire.. on me retourne (no changes, no records))
+CALL db.labels() YIELD label
+WITH label
+MATCH (n:`$label`)
+WITH label, n
+RETURN label, COLLECT(DISTINCT properties(n)) AS properties;";"ça prend beaucoup de temps pui Neo4j crashe, pas de resultat MATCH (n)-[r]->(m) RETURN    labels(n) AS node_labels,    properties(n) AS node_properties,   type(r) AS relationship_type,   properties(r) AS relationship_properties,   labels(m) AS target_node_labels,   properties(m) AS target_node_properties;";"-->Nombre de noeuds par label
+CALL db.labels() YIELD label
+MATCH (n:`$label`)
+RETURN label, COUNT(n) AS node_count;
+-->Nombre de relation par type 
+CALL db.relationshipTypes() YIELD relationshipType
+MATCH ()-[r:`$relationshipType`]->()
+RETURN relationshipType, COUNT(r) AS relationship_count;
+-->Noeud avec le plus de proprietés 
+MATCH (n)
+WITH n, keys(n) AS properties
+ORDER BY size(properties) DESC
+LIMIT 1
+RETURN n, properties;";https://drive.google.com/open?id=18XxjomcMkhjDZbtGlkzhG33ocnFiQ_yB;"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)
+RETURN p.name,collect(g.name), return 2 rows";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)
+MATCH (g)-[:IS_IN_RGP]->(r:RGP)-[:IS_IN_SPOT]->(s:Spot)
+RETURN p.name, collect(distinct(s.name)) return 2 rows";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME return 2 rows]-(f:Family)<-[s:IS_SIMILAR]-(f2:Family)  MATCH (f)-[:IS_IN_MODULE]->(m:Module)  WHERE s.coverage >= 0.8  RETURN p.name,collect(distinct(m.name)) as mod;MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) MATCH (p2:Pangenome)<-[:IS_IN_PANGENOME]-(f2:Family) MATCH (f)-[s:IS_SIMILAR]->(f2) WHERE s.coverage >= 0.8 and p <> p2 and f is not null and f2 is not null RETURN f.name, f2.name return 486 rows;MATCH (p:Pangenome)-[:IS_IN_PANGENOME]->(f:Family)-[n:NEIGHBOR]->(f2:Family) WHERE f2.annotation IS NOT NULL RETURN DISTINCT p.name AS Pangenome;;;;;
+student-52;Accept;Java;4;4;Apache Cassandra;4;GraphQL, SQL/PGQ;"MATCH (n)
+WITH LABELS(n) AS labels
+UNWIND labels AS label
+RETURN DISTINCT label, COUNT(DISTINCT label) AS num_labels
+Started streaming 9 records";"CALL db.relationshipTypes()
+Started streaming 10 records";"MATCH (n)
+WITH DISTINCT labels(n) AS nodeLabels, keys(n) AS properties
+UNWIND nodeLabels AS nodeLabel
+RETURN DISTINCT nodeLabel, collect(DISTINCT properties) AS allProperties
+
+Started streaming 9 records";MATCH ()-[r]->() WITH DISTINCT TYPE(r) AS relationshipType, KEYS(r) AS properties RETURN relationshipType, COLLECT(DISTINCT properties) AS allProperties;"MATCH (n)
+RETURN labels(n) AS label, COUNT(n) AS num_nodes
+//count of Nodes by Label:
+
+
+MATCH ()-[r]->()
+RETURN TYPE(r) AS relationship_type, COUNT(r) AS num_relationships
+//count of Relationships by Type
+
+MATCH (n)-[r]->()
+RETURN DISTINCT labels(n) AS label, COLLECT(DISTINCT TYPE(r)) AS relationship_types
+//node Labels and Their Connected Relationship Types
+";https://drive.google.com/open?id=1fxrs6z5LnAYoZ9T_BePZgCzKSLxKvAAw;;;;;;;;;;
+student-53;Accept;C, JAVA, PYTHON;4;3;Other;4;SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n) as NodeLabels;
+
+it returns 9.";"MATCH ()-[r]->()
+RETURN DISTINCT type(r) AS TypesDeRelations;
+
+it returns 10";"MATCH (n)
+RETURN labels(n) as NodeLabel, properties(n) as NodeProperties;
+
+it returns 1000";"MATCH ()-[r]->() RETURN type(r) as RelationshipType, properties(r) as RelationshipProperties;";"le nombre de nœuds associés à chaque label.
+MATCH (n)
+RETURN labels(n) as NodeLabel, count(n) as NodeCount;
+
+it returns 9 answers
+
+Explorer les relations dans le graphe en retournant les labels du nœud source, le type de relation, les labels du nœud cible et le nombre total de connexions entre ces paires de nœuds. 
+MATCH (n)-[r]->(m)
+RETURN labels(n) as SourceLabel, type(r) as RelationshipType, labels(m) as TargetLabel, count(*) as ConnectionCount;
+
+it returns 10
+
+ Identifier les nœuds isolés dans le graphe 
+MATCH (n)
+WHERE NOT ()--(n)--()
+RETURN labels(n) as IsolatedNodeLabel, count(n) as IsolatedNodeCount;
+
+it returns 3";https://drive.google.com/open?id=1wtWosgBW9QXvmJqMm40nqpet2hw0D21A;"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)
+RETURN p.name,collect(g.name)
+
+it returns 2 answers";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)
+MATCH (g)-[:IS_IN_RGP]->(r:RGP)-[:IS_IN_SPOT]->(s:Spot)
+RETURN p.name, collect(distinct(s.name))
+
+it returns 2 answers";"MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[s:IS_SIMILAR]-(f2:Family) MATCH (f)-[:IS_IN_MODULE]->(m:Module) WHERE s.coverage >= 0.8 RETURN p.name, COLLECT(DISTINCT m.name) AS module;            it returns 2 answers";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family) MATCH (p2:Pangenome)<-[:IS_IN_PANGENOME]-(f2:Family) MATCH (f)-[s:IS_SIMILAR]->(f2) WHERE s.coverage >= 0.8 and p <> p2 and f is not null and f2 is not null RETURN f.name, f2.name  it returns 486 answers;"MATCH (p:Pangenome)-[:IS_IN_PANGENOME]->(f:Family)-[:NEIGHBOR]->(f2:Family) WHERE f.annotation IS NOT NULL AND f2.annotation IS NOT NULL RETURN DISTINCT p.name AS pangenome, COLLECT(DISTINCT f.name) AS FamilyNames;";"MATCH (p:Pangenome)-[:IS_IN_PANGENOME]->(f:Family) WHERE f.annotation IS NOT NULL RETURN p.name, COUNT(f) AS NumberOfAnnotatedFamilies;";"MATCH (m:Module)<-[:IS_IN_MODULE]-(f:Family)-[s:IS_SIMILAR]->(f2:Family) WITH m, AVG(s.identity) AS AvgSimilarity RETURN m.name AS ModuleName, AvgSimilarity ORDER BY AvgSimilarity DESC;";"MATCH (m:Module)<-[:IS_IN_MODULE]-(f1:Family)-[s:IS_SIMILAR]-(f2:Family)-[:IS_IN_MODULE]->(m) WITH m, f1, f2, s.identity AS similarity ORDER BY similarity ASC WITH m, f1, f2, COLLECT(similarity) AS similarities RETURN m.name AS ModuleName, f1.name AS MinSimilarityFamily, f2.name AS MaxSimilarityFamily, HEAD(similarities) AS MinSimilarity, LAST(similarities) AS MaxSimilarity;";.;.
+student-54;Accept;java, ocaml, pyhton;4;4;Redis, Other;3;OpenCypher, SQL/PGQ, SPARQL;"match (n) return distinct labels(n);  // 9 labels";"match ()-[r]-() return distinct type(r); // 10 types";"match (n) return  distinct labels(n) as labs, keys(n) order by labs; // 18 results, some nodes has some optional properties";"match ()-[r]-() return distinct type(r) as t, keys(r); // 10 types with their properties";"match (n)-[r]->(m) return distinct labels(n), type(r), labels(m) ; // get the direction of the relationships between the nodes
+match (n) with distinct labels(n) as labs, count(distinct keys(n)) as cnt where cnt > 1 return collect(labs) as lab; // find the nodes with some optionals properties
+match (n) with distinct labels(n) as lab, keys(n) as ks return distinct lab, apoc.coll.sortText(ks);; // reduce the nodes in the previous list which has the same properties, but the cypher returns them in a random order. apoc lib is necessary
+
+match (n) where labels(n) = ['Gene'] return properties(n) limit 1; // for each obtained label, get the type of each key
+match (n) where labels(n) = ['Family'] and n.annotation is null return properties(n) limit 1; // exceptionnally for family, we found that it existed an optional key
+match (n) where labels(n) = ['Family'] and n.annotation is not null return properties(n) limit 1;match ()-[r]-() where type(r) = 'IS_IN_CONTIG' return properties(r) limit 1; // and for t relationships";https://drive.google.com/open?id=1uOmCwnAbCDmYxmp05wmS2sOzwsu6JFDx;"match (p:Pangenome)--(f:Family)--(g:Gene) return distinct p.name, g.name; // 5477 answers with two types of pangenome";"match (p:Pangenome)--(f:Family)--(g:Gene)--(r:RGP)--(s:Spot) return distinct p.name, s.name; // 656 records";"match (p:Pangenome)--(f:Family)--(m:Module), (f:Family)-[r:IS_SIMILAR]-(f2:Family) where any(iden in r.identity where iden >= 0.8) return p, m; // 48 records";"match (f1:Family)-[r:IS_SIMILAR]-(f2:Family) where f1.annotation is not null and f2.annotation is not null and r.identity >= 0.8 return f1, f2; // 16 nodes with 9 pairs";"match (f1:Family)-[r:NEIGHBOR]->(f2:Family) where f2.annotation is not null return f1, f2; // 473 records";"match (p:Pangenome)--(f:Family) where f.annotation is not null return p.name, count(f); // Enterobacter.cloacae 110, Acinetobacter.baumannii 92";"match (m:Module)--(f:Family)-[r:IS_SIMILAR]-(f2:Family) where r.identity is not null return m, avg(r.identity) as sim_avg order by sim_avg desc; // 715 records";"match (m:Module)--(f:Family)-[r:IS_SIMILAR]-(f2:Family)--(m) where r.identity is not null return m.name, min(r.identity) as imin, max(r.identity) as imax; // 6 records";"match (f:Family)--(m:Module) return f.name, count(m) as num order by num desc limit 10; // 10 records";"match (m:Module)--(f1:Family)-[r:IS_SIMILAR]-(f2:Family)--(m) where r.identity >= 0.8 with f1, f2 match (p1:Partition)--(f1:Family)--(f2:Family)--(p2:Partition) return f1, p1, f2, p2; // 0 records"
+student-55;Accept;python, java, sql, ;4;2;Apache Cassandra, MongoDB;2;SPARQL;"MATCH (n)
+RETURN DISTINCT labels(n)";"MATCH ()-[r]->() RETURN DISTINCT type(r)
+";"MATCH (n)
+WITH DISTINCT labels(n) AS labels, n
+UNWIND labels AS label
+RETURN label, collect(keys(n))[0] AS properties";MATCH ()-[r]->() WITH DISTINCT type(r) AS relType, r RETURN relType, collect(keys(r))[0] AS properties;J'ai pas su comment le faire ;https://drive.google.com/open?id=1YHJeF7XAfsvzuTxBf0dekCi1DcNaf_I6;;;;;;;;;;
+student-56;Accept;python, rust,java, C, C+, C++ ;5;5;Apache Cassandra, MongoDB;5;OpenCypher, GraphQL, SQL/PGQ, SPARQL;"CALL db.labels()   ==> me retourne tous les noeud de ma BD
+
+
+Et si en plus je fait :
+  CALL db.labels()
+  Yield label 
+  RETURN count(label)
+
+
+me retourne 9 qui le nombre de noeud disticnt neoud";"CALL db.relationshipTypes()==> retourne les differents type de relationship de ma BD
+
+
+Et si je  fait:
+CALL db.relationshipTypes()
+YIELD relationshipType
+RETURN COUNT(relationshipType)
+
+Me retourne 10 qui est le nombre de relationship differentes qui construisent ma BD.";"MATCH (n)
+WITH DISTINCT labels(n) AS nodeLabels, keys(n) AS properties
+UNWIND nodeLabels AS nodeLabel
+RETURN DISTINCT nodeLabel, collect(DISTINCT properties) AS allProperties
+
+ca retourne 9 noeud et chaque neoud avec ses propreties";MATCH ()-[r]->() WITH DISTINCT TYPE(r) AS relationshipType, KEYS(r) AS properties RETURN relationshipType, COLLECT(DISTINCT properties) AS allProperties     retourne 10 repense cad 10 relationship avec pour chaqueune les propriétes;"MATCH (n)
+RETURN labels(n) AS label, COUNT(n) AS num_nodes
+//count of Nodes by Label:
+
+
+MATCH ()-[r]->()
+RETURN TYPE(r) AS relationship_type, COUNT(r) AS num_relationships
+//count of Relationships by Type
+
+MATCH (n)-[r]->()
+RETURN DISTINCT labels(n) AS label, COLLECT(DISTINCT TYPE(r)) AS relationship_types
+//node Labels and Their Connected Relationship Types";https://drive.google.com/open?id=16I-Bd0EPuB5gz1klHnTmoHSOUO5QkzB8;;;;;;;;;;
+student-57;Accept;Python, Java, SQL, Cypher, html, css, javascript;4;3;Apache Cassandra, MongoDB;3;OpenCypher, SQL/PGQ;"MATCH(n)
+RETURN DISTINCT labels(n)
+9 labels";"MATCH ()-[r]-() RETURN DISTINCT TYPE(r)
+10 relation types";"MATCH(n)
+UNWIND labels(n) AS label
+WITH label , COLLECT(properties(n) AS listeProperties
+RETRUN label, listeProperties";MATCH()-[r]-() UNWIND labels(r) AS label WITH label , COLLECT(properties(r) AS listeProperties RETRUN label, listeProperties;"MATCH p=()-->() RETURN p LIMIT 25
+MATCH p=()-->() RETURN p LIMIT 25";https://drive.google.com/open?id=1ErdGVX2MuukdlqT43V7Fr4sltsAty0tP;"MATCH(p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)
+WITH p, COLLECT(g) as genes
+RETURN p,genes";"MATCH(p:Pangenome)<-[:IS_IN_PANGENOME]-(f:Family)<-[:IS_IN_FAMILY]-(g:Gene)-[:IS_IN_RGP]->(r)-[:IS_IN_SPOT]->(s:Spot)
+WITH p, COLLECT(s) as spots
+RETURN p,spots";MATCH (p:Pangenome)<-[:IS_IN_PANGENOME]-(f1:Family)-[s:IS_SIMILAR]-(f2:Family)<-[:IS_IN_FAMILY]-(g:Gene)-[:IS_IN_MODULE]->(m:Module) WHERE f1 <> f2 AND s.identity > 0.8 WITH p, COLLECT(m) as modules  RETURN p,modules;MATCH (f1:Family)-[s:IS_SIMILAR]-(f2:Family) WHERE f1<>f2 AND s.identity > 0.8 RETURN f1,f2;------;;;;;
+student-58;Accept;java,python,R,C,js,php;4;2;MongoDB;3;SQL/PGQ;"MATCH (n) WITH DISTINCT labels(n) AS labels UNWIND labels AS label RETURN DISTINCT label
+it return 9 answers";"MATCH ()-[r]->()
+RETURN DISTINCT TYPE(r) AS relationshipType;
+it return 10 answers";"MATCH (n) WITH labels(n) AS labels, keys(n) AS keys UNWIND labels AS label UNWIND keys AS key RETURN DISTINCT label, COLLECT(DISTINCT key) AS properties
+it return 9 answers";MATCH ()-[r]->() WITH type(r) AS type, keys(r) AS keys UNWIND keys AS key RETURN DISTINCT type, COLLECT(DISTINCT key) AS properties   it return 9 answers;"**Count of Nodes for Each Label** it return 9 answers
+MATCH (n)
+RETURN labels(n), count(*)
+**Count of Relationships for Each Type** it return 10 answers 
+MATCH ()-[r]->()
+RETURN type(r), count(*)
+**Degree Distribution** it return 769 answers
+MATCH (n)
+RETURN size((n)--()) AS degree, count(*)
+ORDER BY degree";https://drive.google.com/open?id=1-O9s_vrcouyNqbN8VFOXs9_b0cV_jLOr;"MATCH (g. Gene) – [:IS_IN_FAMILY] -> (f:Family) – [:IS_IN_PANGENOME] -> (p:Pangenome)
+WITH p,g
+Return p.name, Collect(g.start)";MATCH (s:Spot) - [:IS_IN_SPOT] - (r:RGP) <-  [:IS_IN_RGP] -(g:Gene)-[:IS_IN_FAMILY]->(f:Family)-[:IS_IN_PANGENOME]->(p:Pangenome) WITH  p , s Return p.name , Collect(s.name);.;.;.;;;;;

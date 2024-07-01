@@ -14,8 +14,7 @@ Github repository for the paper Understanding Student Errors in Graph Query Form
 - - [Part 3](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%203.pdf)
 - - [Part 4](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%204.pdf)
 - Jupyter notebook for the analysis 
-- processed data used for the analysis in csv format
-- raw data in csv in csv fornat
+- data (students' answers) used for the analysis in csv format
 
 
 ### Authors :
