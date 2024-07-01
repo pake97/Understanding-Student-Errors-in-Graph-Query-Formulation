@@ -13,8 +13,15 @@ Github repository for the paper Understanding Student Errors in Graph Query Form
 - - [Part 2](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%202.pdf)
 - - [Part 3](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%203.pdf)
 - - [Part 4](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%204.pdf)
-- Jupyter notebook for the analysis 
-- data (students' answers) used for the analysis in csv format
+- [Jupyter notebook for the analysis](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Analysis.ipynb)
+- [data (students' answers) used for the analysis in csv format](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/tree/main/data)
+- - Answer-Total : original students's answers to part 1,2,3
+- - Category-Total : students's answers to part 1,2,3 labelled with error category
+- - Type-Total : students's answers to part 1,2,3 labelled with error type
+- - survivot-Total : survivors's answers to part 1,2,3 labelled with error category
+- - Part 4 : original students's answers to part 4 
+- - student_interview : students's summarized answers to live interiews 
+
 
 
 ### Authors :
