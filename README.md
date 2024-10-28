@@ -1,20 +1,20 @@
 # Understanding-Student-Errors-in-Graph-Query-Formulation
 
-Github repository for the paper Understanding Student Errors in Graph Query Formulation
+Supplementary materials for the paper "Understanding Student Errors in Graph Query Formulation"
 
 
 ## Content : 
 
 
-- [Supplementary material](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/2025_Graph_User_Study_Supplementar_material.pdf)
-- Surveys used in the user study 
-- - [Consent form](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Preliminaries%3A%20Informed%20Consent.pdf)
-- - [Part 1](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%201.pdf)
-- - [Part 2](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%202.pdf)
-- - [Part 3](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%203.pdf)
-- - [Part 4](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Part%204.pdf)
-- [Jupyter notebook for the analysis](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/blob/main/Analysis.ipynb)
-- [data (students' answers) used for the analysis in csv format](https://github.com/pake97/Understanding-Student-Errors-in-Graph-Query-Formulation/tree/main/data)
+- 2025_Graph_User_Study_Supplementar_material.pdf: contains the groud truth for the Cypher queries and additional analysis that didn't fit in the final paper
+- Survey/ it contains the question asked during the study and the consent from
+- - Consent form
+- - Part 1: schema discovery queries
+- - Part 2: analytical queries
+- - Part 3: aggregation query
+- - 
+- Scripts/ contains the jupyter notebook used to perform the analysis and create the plots present in the paper
+- data/ contains the anymized students' answers used for the analysis in csv format
 - - Answer-Total : original students's answers to part 1,2,3
 - - Category-Total : students's answers to part 1,2,3 labelled with error category
 - - Type-Total : students's answers to part 1,2,3 labelled with error type
@@ -22,10 +22,3 @@ Github repository for the paper Understanding Student Errors in Graph Query Form
 - - Part 4 : original students's answers to part 4 
 - - student_interview : students's summarized answers to live interiews 
 
-
-
-### Authors :
-Amedeo Pachera, Lyon1 University, CNRS Liris Lyon, France, amedeo.pachera@univ-lyon1.fr
-Stefania Dumbrava, ENSIIE Paris, France, stefania.dumbrava@ensiie.fr
-Angela Bonifati, Lyon1 University, CNRS Liris & IUF Lyon, France, angela.bonifati@univ-lyon1.fr
-Andrea Mauri, Lyon1 University, CNRS Liris Lyon, France, andrea.mauri@univ-lyon1.fr
